@@ -49,7 +49,7 @@ set "TEST_SOURCES=tests\test_runner.cpp src\database\DatabaseManager.cpp src\rep
 
 REM 5. Compile Main Application
 echo [1/3] Compiling CRM System executable: bin\crm_system.exe...
-g++ -std=c++17 -O2 -Iinclude -I"%MYSQL_INC%" %SOURCES% -L"%MYSQL_LIB%" -lmysql -o "bin\crm_system.exe"
+g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -Iinclude -I"%MYSQL_INC%" %SOURCES% -L"%MYSQL_LIB%" -lmysql -o "bin\crm_system.exe"
 if errorlevel 1 (
     echo [ERROR] Compilation of crm_system.exe failed.
     exit /b 1
@@ -57,7 +57,7 @@ if errorlevel 1 (
 
 REM 6. Compile Automated Test Runner
 echo [2/3] Compiling Test Runner executable: bin\crm_tests.exe...
-g++ -std=c++17 -O2 -Iinclude -I"%MYSQL_INC%" %TEST_SOURCES% -L"%MYSQL_LIB%" -lmysql -o "bin\crm_tests.exe"
+g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -Iinclude -I"%MYSQL_INC%" %TEST_SOURCES% -L"%MYSQL_LIB%" -lmysql -o "bin\crm_tests.exe"
 if errorlevel 1 (
     echo [ERROR] Compilation of crm_tests.exe failed.
     exit /b 1
@@ -68,6 +68,13 @@ echo [3/3] Copying runtime DLLs to bin...
 if exist "%MYSQL_LIB%\libmysql.dll" copy /y "%MYSQL_LIB%\libmysql.dll" "bin\" >nul
 if exist "%MYSQL_BIN%\libssl-3-x64.dll" copy /y "%MYSQL_BIN%\libssl-3-x64.dll" "bin\" >nul
 if exist "%MYSQL_BIN%\libcrypto-3-x64.dll" copy /y "%MYSQL_BIN%\libcrypto-3-x64.dll" "bin\" >nul
+if exist "%GCC_BIN%\libwinpthread-1.dll" copy /y "%GCC_BIN%\libwinpthread-1.dll" "bin\" >nul
+where libwinpthread-1.dll >nul 2>nul
+if %ERRORLEVEL% equ 0 (
+    for /f "delims=" %%p in ('where libwinpthread-1.dll') do (
+        copy /y "%%p" "bin\" >nul
+    )
+)
 
 echo ========================================================
 echo [SUCCESS] Build completed successfully!
