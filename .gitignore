@@ -1,0 +1,21 @@
+# Build and binaries
+build/
+bin/
+out/
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+*.a
+
+# Configuration and secrets
+config/db_config.ini
+.env
+
+# IDE and OS
+.vscode/
+.idea/
+*.user
+Thumbs.db
+[Dd]esktop.ini
