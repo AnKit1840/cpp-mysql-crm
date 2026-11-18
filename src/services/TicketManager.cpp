@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <iostream>
 
+using namespace std;
+
 TicketManager::TicketManager(TicketRepository tRepo, CustomerRepository cRepo, EmployeeRepository eRepo)
     : ticketRepo(tRepo), customerRepo(cRepo), employeeRepo(eRepo) {
     // Note: Caller can invoke syncFromDatabase() after DB connection is established
@@ -14,7 +16,7 @@ void TicketManager::syncFromDatabase() {
     queuedTicketIds.clear();
 
     // Query pending tickets from MySQL
-    std::vector<SupportTicket> pending = ticketRepo.getPendingTickets();
+    vector<SupportTicket> pending = ticketRepo.getPendingTickets();
     for (const auto& ticket : pending) {
         if (queuedTicketIds.find(ticket.getId()) == queuedTicketIds.end()) {
             queuedTicketIds.insert(ticket.getId());
@@ -28,22 +30,22 @@ void TicketManager::syncFromDatabase() {
     }
 }
 
-SupportTicket TicketManager::createTicket(int customerId, const std::string& subject,
-                                         const std::string& description, TicketPriority priority) {
+SupportTicket TicketManager::createTicket(int customerId, const string& subject,
+                                         const string& description, TicketPriority priority) {
     auto customer = customerRepo.getById(customerId);
     if (!customer.has_value()) {
-        throw std::invalid_argument("Customer ID #" + std::to_string(customerId) + " not found.");
+        throw invalid_argument("Customer ID #" + to_string(customerId) + " not found.");
     }
     if (subject.empty()) {
-        throw std::invalid_argument("Ticket subject cannot be empty.");
+        throw invalid_argument("Ticket subject cannot be empty.");
     }
     if (description.empty()) {
-        throw std::invalid_argument("Ticket description cannot be empty.");
+        throw invalid_argument("Ticket description cannot be empty.");
     }
 
     SupportTicket ticket(0, customerId, 0, priority, TicketStatus::OPEN, subject, description, "", "", customer->getName(), "");
     if (!ticketRepo.createTicket(ticket)) {
-        throw std::runtime_error("Failed to insert support ticket into database.");
+        throw runtime_error("Failed to insert support ticket into database.");
     }
 
     // Route into appropriate in-memory queue
@@ -59,10 +61,10 @@ SupportTicket TicketManager::createTicket(int customerId, const std::string& sub
     return ticket;
 }
 
-std::optional<SupportTicket> TicketManager::processNextTicket(int employeeId, const std::string& notes) {
+optional<SupportTicket> TicketManager::processNextTicket(int employeeId, const string& notes) {
     auto employee = employeeRepo.getById(employeeId);
     if (!employee.has_value()) {
-        throw std::invalid_argument("Employee ID #" + std::to_string(employeeId) + " not found.");
+        throw invalid_argument("Employee ID #" + to_string(employeeId) + " not found.");
     }
 
     SupportTicket ticketToProcess;
@@ -96,7 +98,7 @@ std::optional<SupportTicket> TicketManager::processNextTicket(int employeeId, co
     }
 
     if (!found) {
-        return std::nullopt; // No tickets pending
+        return nullopt; // No tickets pending
     }
 
     // 3. Assign and transition to IN_PROGRESS in MySQL
@@ -115,11 +117,11 @@ std::optional<SupportTicket> TicketManager::processNextTicket(int employeeId, co
 bool TicketManager::assignTicket(int ticketId, int employeeId) {
     auto ticket = ticketRepo.getById(ticketId);
     if (!ticket.has_value()) {
-        throw std::invalid_argument("Ticket ID #" + std::to_string(ticketId) + " not found.");
+        throw invalid_argument("Ticket ID #" + to_string(ticketId) + " not found.");
     }
     auto employee = employeeRepo.getById(employeeId);
     if (!employee.has_value()) {
-        throw std::invalid_argument("Employee ID #" + std::to_string(employeeId) + " not found.");
+        throw invalid_argument("Employee ID #" + to_string(employeeId) + " not found.");
     }
 
     bool ok = ticketRepo.assignTicket(ticketId, employeeId);
@@ -129,10 +131,10 @@ bool TicketManager::assignTicket(int ticketId, int employeeId) {
     return ok;
 }
 
-bool TicketManager::resolveTicket(int ticketId, int employeeId, const std::string& resolutionNotes) {
+bool TicketManager::resolveTicket(int ticketId, int employeeId, const string& resolutionNotes) {
     auto ticket = ticketRepo.getById(ticketId);
     if (!ticket.has_value()) {
-        throw std::invalid_argument("Ticket ID #" + std::to_string(ticketId) + " not found.");
+        throw invalid_argument("Ticket ID #" + to_string(ticketId) + " not found.");
     }
 
     bool ok = ticketRepo.resolveTicket(ticketId);
@@ -144,10 +146,10 @@ bool TicketManager::resolveTicket(int ticketId, int employeeId, const std::strin
     return ok;
 }
 
-bool TicketManager::closeTicket(int ticketId, int employeeId, const std::string& closingNotes) {
+bool TicketManager::closeTicket(int ticketId, int employeeId, const string& closingNotes) {
     auto ticket = ticketRepo.getById(ticketId);
     if (!ticket.has_value()) {
-        throw std::invalid_argument("Ticket ID #" + std::to_string(ticketId) + " not found.");
+        throw invalid_argument("Ticket ID #" + to_string(ticketId) + " not found.");
     }
 
     bool ok = ticketRepo.updateTicketStatus(ticketId, TicketStatus::CLOSED);
@@ -166,18 +168,18 @@ QueueStats TicketManager::getQueueStatistics() const {
     return stats;
 }
 
-std::vector<SupportTicket> TicketManager::getAllTickets() {
+vector<SupportTicket> TicketManager::getAllTickets() {
     return ticketRepo.getAll();
 }
 
-std::vector<SupportTicket> TicketManager::getCustomerTickets(int customerId) {
+vector<SupportTicket> TicketManager::getCustomerTickets(int customerId) {
     return ticketRepo.getTicketsByCustomer(customerId);
 }
 
-std::vector<TicketUpdate> TicketManager::getTicketHistory(int ticketId) {
+vector<TicketUpdate> TicketManager::getTicketHistory(int ticketId) {
     return ticketRepo.getTicketHistory(ticketId);
 }
 
-std::optional<SupportTicket> TicketManager::getTicketById(int ticketId) {
+optional<SupportTicket> TicketManager::getTicketById(int ticketId) {
     return ticketRepo.getById(ticketId);
 }

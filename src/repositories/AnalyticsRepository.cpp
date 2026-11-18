@@ -1,11 +1,13 @@
 #include "../../include/repositories/AnalyticsRepository.hpp"
 #include <sstream>
 
+using namespace std;
+
 AnalyticsRepository::AnalyticsRepository(DatabaseManager& dbManager) : db(dbManager) {}
 
 RevenueSummary AnalyticsRepository::getOverallRevenueMetrics() {
     RevenueSummary summary;
-    std::string sql = "SELECT COUNT(order_id), COALESCE(SUM(total_amount), 0.0), COALESCE(AVG(total_amount), 0.0) "
+    string sql = "SELECT COUNT(order_id), COALESCE(SUM(total_amount), 0.0), COALESCE(AVG(total_amount), 0.0) "
                       "FROM orders WHERE status = 'COMPLETED';";
 
     MYSQL_RES* res = db.executeQuery(sql);
@@ -13,17 +15,17 @@ RevenueSummary AnalyticsRepository::getOverallRevenueMetrics() {
 
     MYSQL_ROW row = mysql_fetch_row(res);
     if (row) {
-        summary.totalOrders = row[0] ? std::stoi(row[0]) : 0;
-        summary.totalRevenue = row[1] ? std::stod(row[1]) : 0.0;
-        summary.averageOrderValue = row[2] ? std::stod(row[2]) : 0.0;
+        summary.totalOrders = row[0] ? stoi(row[0]) : 0;
+        summary.totalRevenue = row[1] ? stod(row[1]) : 0.0;
+        summary.averageOrderValue = row[2] ? stod(row[2]) : 0.0;
     }
     mysql_free_result(res);
     return summary;
 }
 
-std::vector<MonthlyRevenue> AnalyticsRepository::getMonthlyRevenueTrend() {
-    std::vector<MonthlyRevenue> list;
-    std::string sql = "SELECT DATE_FORMAT(order_date, '%Y-%m') AS sales_month, "
+vector<MonthlyRevenue> AnalyticsRepository::getMonthlyRevenueTrend() {
+    vector<MonthlyRevenue> list;
+    string sql = "SELECT DATE_FORMAT(order_date, '%Y-%m') AS sales_month, "
                       "COUNT(order_id), SUM(total_amount), ROUND(AVG(total_amount), 2) "
                       "FROM orders WHERE status = 'COMPLETED' "
                       "GROUP BY DATE_FORMAT(order_date, '%Y-%m') "
@@ -36,18 +38,18 @@ std::vector<MonthlyRevenue> AnalyticsRepository::getMonthlyRevenueTrend() {
     while ((row = mysql_fetch_row(res)) != nullptr) {
         MonthlyRevenue item;
         item.month = row[0] ? row[0] : "";
-        item.ordersCount = row[1] ? std::stoi(row[1]) : 0;
-        item.revenue = row[2] ? std::stod(row[2]) : 0.0;
-        item.avgOrderValue = row[3] ? std::stod(row[3]) : 0.0;
+        item.ordersCount = row[1] ? stoi(row[1]) : 0;
+        item.revenue = row[2] ? stod(row[2]) : 0.0;
+        item.avgOrderValue = row[3] ? stod(row[3]) : 0.0;
         list.push_back(item);
     }
     mysql_free_result(res);
     return list;
 }
 
-std::vector<CustomerSpending> AnalyticsRepository::getTopCustomers(int limit) {
-    std::vector<CustomerSpending> list;
-    std::stringstream ss;
+vector<CustomerSpending> AnalyticsRepository::getTopCustomers(int limit) {
+    vector<CustomerSpending> list;
+    stringstream ss;
     ss << "SELECT c.customer_id, c.name, c.email, COUNT(o.order_id), SUM(o.total_amount) "
        << "FROM customers c "
        << "INNER JOIN orders o ON c.customer_id = o.customer_id "
@@ -62,20 +64,20 @@ std::vector<CustomerSpending> AnalyticsRepository::getTopCustomers(int limit) {
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         CustomerSpending item;
-        item.customerId = row[0] ? std::stoi(row[0]) : 0;
+        item.customerId = row[0] ? stoi(row[0]) : 0;
         item.name = row[1] ? row[1] : "";
         item.email = row[2] ? row[2] : "";
-        item.completedOrders = row[3] ? std::stoi(row[3]) : 0;
-        item.totalSpent = row[4] ? std::stod(row[4]) : 0.0;
+        item.completedOrders = row[3] ? stoi(row[3]) : 0;
+        item.totalSpent = row[4] ? stod(row[4]) : 0.0;
         list.push_back(item);
     }
     mysql_free_result(res);
     return list;
 }
 
-std::vector<ProductSalesStat> AnalyticsRepository::getBestSellingProducts(int limit) {
-    std::vector<ProductSalesStat> list;
-    std::stringstream ss;
+vector<ProductSalesStat> AnalyticsRepository::getBestSellingProducts(int limit) {
+    vector<ProductSalesStat> list;
+    stringstream ss;
     ss << "SELECT p.product_id, p.name, cat.name, SUM(oi.quantity), SUM(oi.subtotal) "
        << "FROM products p "
        << "INNER JOIN categories cat ON p.category_id = cat.category_id "
@@ -92,20 +94,20 @@ std::vector<ProductSalesStat> AnalyticsRepository::getBestSellingProducts(int li
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         ProductSalesStat item;
-        item.productId = row[0] ? std::stoi(row[0]) : 0;
+        item.productId = row[0] ? stoi(row[0]) : 0;
         item.productName = row[1] ? row[1] : "";
         item.categoryName = row[2] ? row[2] : "";
-        item.unitsSold = row[3] ? std::stoi(row[3]) : 0;
-        item.totalRevenue = row[4] ? std::stod(row[4]) : 0.0;
+        item.unitsSold = row[3] ? stoi(row[3]) : 0;
+        item.totalRevenue = row[4] ? stod(row[4]) : 0.0;
         list.push_back(item);
     }
     mysql_free_result(res);
     return list;
 }
 
-std::vector<EmployeeWorkload> AnalyticsRepository::getEmployeeWorkloads() {
-    std::vector<EmployeeWorkload> list;
-    std::string sql = "SELECT e.employee_id, e.name, e.role, "
+vector<EmployeeWorkload> AnalyticsRepository::getEmployeeWorkloads() {
+    vector<EmployeeWorkload> list;
+    string sql = "SELECT e.employee_id, e.name, e.role, "
                       "COUNT(t.ticket_id) AS total_assigned, "
                       "SUM(CASE WHEN t.status IN ('OPEN', 'IN_PROGRESS') THEN 1 ELSE 0 END) AS active_tickets, "
                       "SUM(CASE WHEN t.status IN ('RESOLVED', 'CLOSED') THEN 1 ELSE 0 END) AS resolved_tickets "
@@ -120,21 +122,21 @@ std::vector<EmployeeWorkload> AnalyticsRepository::getEmployeeWorkloads() {
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         EmployeeWorkload item;
-        item.employeeId = row[0] ? std::stoi(row[0]) : 0;
+        item.employeeId = row[0] ? stoi(row[0]) : 0;
         item.name = row[1] ? row[1] : "";
         item.role = row[2] ? row[2] : "";
-        item.totalAssigned = row[3] ? std::stoi(row[3]) : 0;
-        item.activeTickets = row[4] ? std::stoi(row[4]) : 0;
-        item.resolvedTickets = row[5] ? std::stoi(row[5]) : 0;
+        item.totalAssigned = row[3] ? stoi(row[3]) : 0;
+        item.activeTickets = row[4] ? stoi(row[4]) : 0;
+        item.resolvedTickets = row[5] ? stoi(row[5]) : 0;
         list.push_back(item);
     }
     mysql_free_result(res);
     return list;
 }
 
-std::vector<TicketStatusCount> AnalyticsRepository::getTicketStatusBreakdown() {
-    std::vector<TicketStatusCount> list;
-    std::string sql = "SELECT status, priority, COUNT(ticket_id) "
+vector<TicketStatusCount> AnalyticsRepository::getTicketStatusBreakdown() {
+    vector<TicketStatusCount> list;
+    string sql = "SELECT status, priority, COUNT(ticket_id) "
                       "FROM support_tickets "
                       "GROUP BY status, priority "
                       "ORDER BY FIELD(priority, 'CRITICAL', 'HIGH', 'NORMAL', 'LOW'), status;";
@@ -147,16 +149,16 @@ std::vector<TicketStatusCount> AnalyticsRepository::getTicketStatusBreakdown() {
         TicketStatusCount item;
         item.status = row[0] ? row[0] : "";
         item.priority = row[1] ? row[1] : "";
-        item.count = row[2] ? std::stoi(row[2]) : 0;
+        item.count = row[2] ? stoi(row[2]) : 0;
         list.push_back(item);
     }
     mysql_free_result(res);
     return list;
 }
 
-std::vector<LowStockItem> AnalyticsRepository::getLowStockAlerts(int threshold) {
-    std::vector<LowStockItem> list;
-    std::stringstream ss;
+vector<LowStockItem> AnalyticsRepository::getLowStockAlerts(int threshold) {
+    vector<LowStockItem> list;
+    stringstream ss;
     ss << "SELECT p.product_id, p.name, cat.name, p.stock_quantity, p.price "
        << "FROM products p "
        << "INNER JOIN categories cat ON p.category_id = cat.category_id "
@@ -169,11 +171,11 @@ std::vector<LowStockItem> AnalyticsRepository::getLowStockAlerts(int threshold) 
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         LowStockItem item;
-        item.productId = row[0] ? std::stoi(row[0]) : 0;
+        item.productId = row[0] ? stoi(row[0]) : 0;
         item.name = row[1] ? row[1] : "";
         item.categoryName = row[2] ? row[2] : "";
-        item.stockQuantity = row[3] ? std::stoi(row[3]) : 0;
-        item.price = row[4] ? std::stod(row[4]) : 0.0;
+        item.stockQuantity = row[3] ? stoi(row[3]) : 0;
+        item.price = row[4] ? stod(row[4]) : 0.0;
         list.push_back(item);
     }
     mysql_free_result(res);

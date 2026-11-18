@@ -6,6 +6,8 @@
 #include "../models/Product.hpp"
 #include "../database/DatabaseManager.hpp"
 
+using namespace std;
+
 class ProductRepository {
 private:
     DatabaseManager& db;
@@ -17,10 +19,10 @@ public:
     bool updateProduct(const Product& product);
     bool deleteProduct(int productId);
 
-    std::optional<Product> getById(int productId);
-    std::vector<Product> search(const std::string& searchTerm);
-    std::vector<Product> getAll();
-    std::vector<Product> getLowStock(int threshold = 10);
+    optional<Product> getById(int productId);
+    vector<Product> search(const string& searchTerm);
+    vector<Product> getAll();
+    vector<Product> getLowStock(int threshold = 10);
 
     bool updatePrice(int productId, double newPrice);
     bool updateStock(int productId, int newStock);

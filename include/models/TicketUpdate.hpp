@@ -4,46 +4,48 @@
 #include <string>
 #include <iostream>
 
+using namespace std;
+
 class TicketUpdate {
 private:
     int id;
     int ticketId;
     int employeeId;
-    std::string employeeName;
-    std::string updateText;
-    std::string statusChange;
-    std::string updatedAt;
+    string employeeName;
+    string updateText;
+    string statusChange;
+    string updatedAt;
 
 public:
     TicketUpdate()
         : id(0), ticketId(0), employeeId(0), employeeName(""),
           updateText(""), statusChange(""), updatedAt("") {}
 
-    TicketUpdate(int id, int ticketId, int employeeId, const std::string& updateText,
-                 const std::string& statusChange, const std::string& updatedAt = "",
-                 const std::string& employeeName = "")
+    TicketUpdate(int id, int ticketId, int employeeId, const string& updateText,
+                 const string& statusChange, const string& updatedAt = "",
+                 const string& employeeName = "")
         : id(id), ticketId(ticketId), employeeId(employeeId), employeeName(employeeName),
           updateText(updateText), statusChange(statusChange), updatedAt(updatedAt) {}
 
     int getId() const { return id; }
     int getTicketId() const { return ticketId; }
     int getEmployeeId() const { return employeeId; }
-    std::string getEmployeeName() const { return employeeName; }
-    std::string getUpdateText() const { return updateText; }
-    std::string getStatusChange() const { return statusChange; }
-    std::string getUpdatedAt() const { return updatedAt; }
+    string getEmployeeName() const { return employeeName; }
+    string getUpdateText() const { return updateText; }
+    string getStatusChange() const { return statusChange; }
+    string getUpdatedAt() const { return updatedAt; }
 
     void setId(int newId) { id = newId; }
     void setTicketId(int tId) { ticketId = tId; }
     void setEmployeeId(int eId) { employeeId = eId; }
-    void setEmployeeName(const std::string& name) { employeeName = name; }
-    void setUpdateText(const std::string& text) { updateText = text; }
-    void setStatusChange(const std::string& change) { statusChange = change; }
-    void setUpdatedAt(const std::string& time) { updatedAt = time; }
+    void setEmployeeName(const string& name) { employeeName = name; }
+    void setUpdateText(const string& text) { updateText = text; }
+    void setStatusChange(const string& change) { statusChange = change; }
+    void setUpdatedAt(const string& time) { updatedAt = time; }
 
     void display() const {
-        std::cout << "  - [" << updatedAt << "] Updated by " 
-                  << (employeeName.empty() ? ("Employee #" + std::to_string(employeeId)) : employeeName)
+        cout << "  - [" << updatedAt << "] Updated by " 
+                  << (employeeName.empty() ? ("Employee #" + to_string(employeeId)) : employeeName)
                   << " (" << statusChange << "): " << updateText << "\n";
     }
 };

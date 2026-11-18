@@ -1,6 +1,8 @@
 #include "../../include/repositories/OrderRepository.hpp"
 #include <sstream>
 
+using namespace std;
+
 OrderRepository::OrderRepository(DatabaseManager& dbManager) : db(dbManager) {}
 
 bool OrderRepository::placeOrderTransaction(Order& order, Payment& payment) {
@@ -12,7 +14,7 @@ bool OrderRepository::placeOrderTransaction(Order& order, Payment& payment) {
     TransactionGuard guard(db);
 
     // 1. Insert order header
-    std::stringstream ssOrder;
+    stringstream ssOrder;
     ssOrder << "INSERT INTO orders (customer_id, status, total_amount) VALUES ("
             << order.getCustomerId() << ", '" << order.getStatus() << "', "
             << order.getTotalAmount() << ");";
@@ -26,18 +28,18 @@ bool OrderRepository::placeOrderTransaction(Order& order, Payment& payment) {
         item.setOrderId(orderId);
 
         // Deduct inventory with strict concurrency validation (stock >= quantity)
-        std::stringstream ssStock;
+        stringstream ssStock;
         ssStock << "UPDATE products SET stock_quantity = stock_quantity - " << item.getQuantity()
                 << " WHERE product_id = " << item.getProductId()
                 << " AND stock_quantity >= " << item.getQuantity() << ";";
 
         db.executeNonQuery(ssStock.str());
         if (db.getAffectedRows() == 0) {
-            throw DatabaseException("Insufficient inventory available for Product ID #" + std::to_string(item.getProductId()));
+            throw DatabaseException("Insufficient inventory available for Product ID #" + to_string(item.getProductId()));
         }
 
         // Insert item record
-        std::stringstream ssItem;
+        stringstream ssItem;
         ssItem << "INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal) VALUES ("
                << orderId << ", " << item.getProductId() << ", "
                << item.getQuantity() << ", " << item.getUnitPrice() << ", "
@@ -49,10 +51,10 @@ bool OrderRepository::placeOrderTransaction(Order& order, Payment& payment) {
 
     // 3. Record payment
     payment.setOrderId(orderId);
-    std::string safeMethod = db.escapeString(payment.getPaymentMethod());
-    std::string safeStatus = db.escapeString(payment.getStatus());
+    string safeMethod = db.escapeString(payment.getPaymentMethod());
+    string safeStatus = db.escapeString(payment.getStatus());
 
-    std::stringstream ssPayment;
+    stringstream ssPayment;
     ssPayment << "INSERT INTO payments (order_id, amount, payment_method, status) VALUES ("
               << orderId << ", " << payment.getAmount() << ", '"
               << safeMethod << "', '" << safeStatus << "');";
@@ -69,7 +71,7 @@ bool OrderRepository::cancelOrderTransaction(int orderId) {
     TransactionGuard guard(db);
 
     // 1. Verify order exists and is eligible for cancellation
-    std::stringstream ssCheck;
+    stringstream ssCheck;
     ssCheck << "SELECT status FROM orders WHERE order_id = " << orderId << ";";
     MYSQL_RES* res = db.executeQuery(ssCheck.str());
     if (!res) return false;
@@ -77,27 +79,27 @@ bool OrderRepository::cancelOrderTransaction(int orderId) {
     MYSQL_ROW row = mysql_fetch_row(res);
     if (!row) {
         mysql_free_result(res);
-        throw DatabaseException("Order ID #" + std::to_string(orderId) + " does not exist.");
+        throw DatabaseException("Order ID #" + to_string(orderId) + " does not exist.");
     }
 
-    std::string currentStatus = row[0] ? row[0] : "";
+    string currentStatus = row[0] ? row[0] : "";
     mysql_free_result(res);
 
     if (currentStatus == "CANCELLED") {
-        throw DatabaseException("Order ID #" + std::to_string(orderId) + " is already cancelled.");
+        throw DatabaseException("Order ID #" + to_string(orderId) + " is already cancelled.");
     }
 
     // 2. Fetch line items to restore inventory
-    std::stringstream ssItems;
+    stringstream ssItems;
     ssItems << "SELECT product_id, quantity FROM order_items WHERE order_id = " << orderId << ";";
     MYSQL_RES* resItems = db.executeQuery(ssItems.str());
     if (resItems) {
         MYSQL_ROW itemRow;
         while ((itemRow = mysql_fetch_row(resItems)) != nullptr) {
-            int prodId = std::stoi(itemRow[0]);
-            int qty = std::stoi(itemRow[1]);
+            int prodId = stoi(itemRow[0]);
+            int qty = stoi(itemRow[1]);
 
-            std::stringstream ssRestore;
+            stringstream ssRestore;
             ssRestore << "UPDATE products SET stock_quantity = stock_quantity + " << qty
                       << " WHERE product_id = " << prodId << ";";
             db.executeNonQuery(ssRestore.str());
@@ -106,12 +108,12 @@ bool OrderRepository::cancelOrderTransaction(int orderId) {
     }
 
     // 3. Update order status to CANCELLED
-    std::stringstream ssUpdateOrder;
+    stringstream ssUpdateOrder;
     ssUpdateOrder << "UPDATE orders SET status = 'CANCELLED' WHERE order_id = " << orderId << ";";
     db.executeNonQuery(ssUpdateOrder.str());
 
     // 4. Update payment records to REFUNDED
-    std::stringstream ssUpdatePayment;
+    stringstream ssUpdatePayment;
     ssUpdatePayment << "UPDATE payments SET status = 'REFUNDED' WHERE order_id = " << orderId << ";";
     db.executeNonQuery(ssUpdatePayment.str());
 
@@ -119,34 +121,34 @@ bool OrderRepository::cancelOrderTransaction(int orderId) {
     return true;
 }
 
-std::optional<Order> OrderRepository::getById(int orderId) {
-    std::stringstream ss;
+optional<Order> OrderRepository::getById(int orderId) {
+    stringstream ss;
     ss << "SELECT o.order_id, o.customer_id, o.order_date, o.status, o.total_amount, c.name "
        << "FROM orders o "
        << "LEFT JOIN customers c ON o.customer_id = c.customer_id "
        << "WHERE o.order_id = " << orderId << ";";
 
     MYSQL_RES* res = db.executeQuery(ss.str());
-    if (!res) return std::nullopt;
+    if (!res) return nullopt;
 
     MYSQL_ROW row = mysql_fetch_row(res);
     if (!row) {
         mysql_free_result(res);
-        return std::nullopt;
+        return nullopt;
     }
 
     Order order(
-        std::stoi(row[0]),
-        std::stoi(row[1]),
+        stoi(row[0]),
+        stoi(row[1]),
         row[2] ? row[2] : "",
         row[3] ? row[3] : "",
-        std::stod(row[4]),
+        stod(row[4]),
         row[5] ? row[5] : ""
     );
     mysql_free_result(res);
 
     // Fetch line items
-    std::stringstream ssItems;
+    stringstream ssItems;
     ssItems << "SELECT oi.order_item_id, oi.order_id, oi.product_id, oi.quantity, oi.unit_price, oi.subtotal, p.name "
             << "FROM order_items oi "
             << "LEFT JOIN products p ON oi.product_id = p.product_id "
@@ -158,12 +160,12 @@ std::optional<Order> OrderRepository::getById(int orderId) {
         MYSQL_ROW itemRow;
         while ((itemRow = mysql_fetch_row(resItems)) != nullptr) {
             order.addItem(OrderItem(
-                std::stoi(itemRow[0]),
-                std::stoi(itemRow[1]),
-                std::stoi(itemRow[2]),
-                std::stoi(itemRow[3]),
-                std::stod(itemRow[4]),
-                std::stod(itemRow[5]),
+                stoi(itemRow[0]),
+                stoi(itemRow[1]),
+                stoi(itemRow[2]),
+                stoi(itemRow[3]),
+                stod(itemRow[4]),
+                stod(itemRow[5]),
                 itemRow[6] ? itemRow[6] : ""
             ));
         }
@@ -173,9 +175,9 @@ std::optional<Order> OrderRepository::getById(int orderId) {
     return order;
 }
 
-std::vector<Order> OrderRepository::getOrdersByCustomer(int customerId) {
-    std::vector<Order> list;
-    std::stringstream ss;
+vector<Order> OrderRepository::getOrdersByCustomer(int customerId) {
+    vector<Order> list;
+    stringstream ss;
     ss << "SELECT o.order_id, o.customer_id, o.order_date, o.status, o.total_amount, c.name "
        << "FROM orders o "
        << "LEFT JOIN customers c ON o.customer_id = c.customer_id "
@@ -188,11 +190,11 @@ std::vector<Order> OrderRepository::getOrdersByCustomer(int customerId) {
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
-            std::stoi(row[1]),
+            stoi(row[0]),
+            stoi(row[1]),
             row[2] ? row[2] : "",
             row[3] ? row[3] : "",
-            std::stod(row[4]),
+            stod(row[4]),
             row[5] ? row[5] : ""
         );
     }
@@ -201,9 +203,9 @@ std::vector<Order> OrderRepository::getOrdersByCustomer(int customerId) {
     return list;
 }
 
-std::vector<Order> OrderRepository::getAll() {
-    std::vector<Order> list;
-    std::string sql = "SELECT o.order_id, o.customer_id, o.order_date, o.status, o.total_amount, c.name "
+vector<Order> OrderRepository::getAll() {
+    vector<Order> list;
+    string sql = "SELECT o.order_id, o.customer_id, o.order_date, o.status, o.total_amount, c.name "
                       "FROM orders o "
                       "LEFT JOIN customers c ON o.customer_id = c.customer_id "
                       "ORDER BY o.order_id DESC;";
@@ -214,11 +216,11 @@ std::vector<Order> OrderRepository::getAll() {
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
-            std::stoi(row[1]),
+            stoi(row[0]),
+            stoi(row[1]),
             row[2] ? row[2] : "",
             row[3] ? row[3] : "",
-            std::stod(row[4]),
+            stod(row[4]),
             row[5] ? row[5] : ""
         );
     }
@@ -227,9 +229,9 @@ std::vector<Order> OrderRepository::getAll() {
     return list;
 }
 
-std::vector<Payment> OrderRepository::getPaymentsForOrder(int orderId) {
-    std::vector<Payment> list;
-    std::stringstream ss;
+vector<Payment> OrderRepository::getPaymentsForOrder(int orderId) {
+    vector<Payment> list;
+    stringstream ss;
     ss << "SELECT payment_id, order_id, payment_date, amount, payment_method, status "
        << "FROM payments WHERE order_id = " << orderId << " ORDER BY payment_date DESC;";
 
@@ -239,10 +241,10 @@ std::vector<Payment> OrderRepository::getPaymentsForOrder(int orderId) {
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
-            std::stoi(row[1]),
+            stoi(row[0]),
+            stoi(row[1]),
             row[2] ? row[2] : "",
-            std::stod(row[3]),
+            stod(row[3]),
             row[4] ? row[4] : "CASH",
             row[5] ? row[5] : "PAID"
         );

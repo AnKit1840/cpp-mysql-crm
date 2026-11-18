@@ -1,7 +1,9 @@
 #include "../../include/database/DatabaseManager.hpp"
 
-std::unique_ptr<DatabaseManager> DatabaseManager::instance = nullptr;
-std::mutex DatabaseManager::instanceMutex;
+using namespace std;
+
+unique_ptr<DatabaseManager> DatabaseManager::instance = nullptr;
+mutex DatabaseManager::instanceMutex;
 
 DatabaseManager::DatabaseManager() : conn(nullptr), inTransaction(false) {}
 
@@ -10,7 +12,7 @@ DatabaseManager::~DatabaseManager() {
 }
 
 DatabaseManager& DatabaseManager::getInstance() {
-    std::lock_guard<std::mutex> lock(instanceMutex);
+    lock_guard<mutex> lock(instanceMutex);
     if (!instance) {
         instance.reset(new DatabaseManager());
     }
@@ -38,7 +40,7 @@ bool DatabaseManager::connect(const DatabaseConfig& cfg) {
                             config.port,
                             nullptr,
                             CLIENT_MULTI_STATEMENTS)) {
-        std::string err = mysql_error(conn);
+        string err = mysql_error(conn);
         mysql_close(conn);
         conn = nullptr;
         throw DatabaseException("MySQL Connection Error: " + err);
@@ -63,25 +65,25 @@ bool DatabaseManager::isConnected() const {
     return conn != nullptr && mysql_ping(conn) == 0;
 }
 
-void DatabaseManager::executeNonQuery(const std::string& sql) {
+void DatabaseManager::executeNonQuery(const string& sql) {
     if (!conn) {
         throw DatabaseException("Database is not connected.");
     }
     if (mysql_query(conn, sql.c_str()) != 0) {
-        throw DatabaseException("SQL Query Execution Error: " + std::string(mysql_error(conn)) + "\nQuery: " + sql);
+        throw DatabaseException("SQL Query Execution Error: " + string(mysql_error(conn)) + "\nQuery: " + sql);
     }
 }
 
-MYSQL_RES* DatabaseManager::executeQuery(const std::string& sql) {
+MYSQL_RES* DatabaseManager::executeQuery(const string& sql) {
     if (!conn) {
         throw DatabaseException("Database is not connected.");
     }
     if (mysql_query(conn, sql.c_str()) != 0) {
-        throw DatabaseException("SQL Query Execution Error: " + std::string(mysql_error(conn)) + "\nQuery: " + sql);
+        throw DatabaseException("SQL Query Execution Error: " + string(mysql_error(conn)) + "\nQuery: " + sql);
     }
     MYSQL_RES* result = mysql_store_result(conn);
     if (!result && mysql_field_count(conn) > 0) {
-        throw DatabaseException("Failed to store MySQL result: " + std::string(mysql_error(conn)));
+        throw DatabaseException("Failed to store MySQL result: " + string(mysql_error(conn)));
     }
     return result;
 }
@@ -96,11 +98,11 @@ int DatabaseManager::getAffectedRows() {
     return static_cast<int>(mysql_affected_rows(conn));
 }
 
-std::string DatabaseManager::escapeString(const std::string& input) {
+string DatabaseManager::escapeString(const string& input) {
     if (!conn) return input;
-    std::vector<char> buffer(input.length() * 2 + 1);
+    vector<char> buffer(input.length() * 2 + 1);
     unsigned long length = mysql_real_escape_string(conn, buffer.data(), input.c_str(), input.length());
-    return std::string(buffer.data(), length);
+    return string(buffer.data(), length);
 }
 
 void DatabaseManager::beginTransaction() {

@@ -7,6 +7,8 @@
 #include "../models/TicketUpdate.hpp"
 #include "../database/DatabaseManager.hpp"
 
+using namespace std;
+
 class TicketRepository {
 private:
     DatabaseManager& db;
@@ -18,14 +20,14 @@ public:
     bool updateTicketStatus(int ticketId, TicketStatus newStatus);
     bool assignTicket(int ticketId, int employeeId);
     bool resolveTicket(int ticketId);
-    bool addTicketUpdate(int ticketId, int employeeId, const std::string& updateText, const std::string& statusChange);
+    bool addTicketUpdate(int ticketId, int employeeId, const string& updateText, const string& statusChange);
 
-    std::optional<SupportTicket> getById(int ticketId);
-    std::vector<SupportTicket> getPendingTickets();
-    std::vector<SupportTicket> getTicketsByCustomer(int customerId);
-    std::vector<SupportTicket> getTicketsByEmployee(int employeeId);
-    std::vector<SupportTicket> getAll();
-    std::vector<TicketUpdate> getTicketHistory(int ticketId);
+    optional<SupportTicket> getById(int ticketId);
+    vector<SupportTicket> getPendingTickets();
+    vector<SupportTicket> getTicketsByCustomer(int customerId);
+    vector<SupportTicket> getTicketsByEmployee(int employeeId);
+    vector<SupportTicket> getAll();
+    vector<TicketUpdate> getTicketHistory(int ticketId);
 };
 
 #endif // TICKET_REPOSITORY_HPP

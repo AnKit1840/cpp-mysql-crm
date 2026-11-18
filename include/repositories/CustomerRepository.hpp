@@ -7,6 +7,8 @@
 #include "../models/Customer.hpp"
 #include "../database/DatabaseManager.hpp"
 
+using namespace std;
+
 class CustomerRepository {
 private:
     DatabaseManager& db;
@@ -18,10 +20,10 @@ public:
     bool updateCustomer(const Customer& customer);
     bool deleteCustomer(int customerId);
     
-    std::optional<Customer> getById(int customerId);
-    std::optional<Customer> getByEmail(const std::string& email);
-    std::vector<Customer> search(const std::string& searchTerm);
-    std::vector<Customer> getAll();
+    optional<Customer> getById(int customerId);
+    optional<Customer> getByEmail(const string& email);
+    vector<Customer> search(const string& searchTerm);
+    vector<Customer> getAll();
 
     int getOrderCount(int customerId);
     int getTicketCount(int customerId);

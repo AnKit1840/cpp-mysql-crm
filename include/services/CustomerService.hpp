@@ -8,27 +8,29 @@
 #include "../models/Customer.hpp"
 #include "../repositories/CustomerRepository.hpp"
 
+using namespace std;
+
 class CustomerService {
 private:
     CustomerRepository repo;
 
-    bool isValidEmail(const std::string& email) const;
+    bool isValidEmail(const string& email) const;
 
 public:
     explicit CustomerService(CustomerRepository repository = CustomerRepository());
 
-    Customer registerCustomer(const std::string& name, const std::string& email,
-                             const std::string& phone, const std::string& address);
-    bool updateCustomer(int id, const std::string& name, const std::string& email,
-                        const std::string& phone, const std::string& address);
+    Customer registerCustomer(const string& name, const string& email,
+                             const string& phone, const string& address);
+    bool updateCustomer(int id, const string& name, const string& email,
+                        const string& phone, const string& address);
     bool deleteCustomer(int id);
 
-    std::optional<Customer> getCustomerById(int id);
-    std::optional<Customer> getCustomerByEmail(const std::string& email);
-    std::vector<Customer> searchCustomers(const std::string& query);
-    std::vector<Customer> getAllCustomers();
+    optional<Customer> getCustomerById(int id);
+    optional<Customer> getCustomerByEmail(const string& email);
+    vector<Customer> searchCustomers(const string& query);
+    vector<Customer> getAllCustomers();
 
-    bool canDeleteCustomer(int id, std::string& reason);
+    bool canDeleteCustomer(int id, string& reason);
 };
 
 #endif // CUSTOMER_SERVICE_HPP

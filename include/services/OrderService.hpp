@@ -11,6 +11,8 @@
 #include "../repositories/ProductRepository.hpp"
 #include "../repositories/CustomerRepository.hpp"
 
+using namespace std;
+
 class OrderService {
 private:
     OrderRepository orderRepo;
@@ -23,15 +25,15 @@ public:
                           CustomerRepository cRepo = CustomerRepository());
 
     Order placeOrder(int customerId,
-                     const std::vector<std::pair<int, int>>& requestedItems,
-                     const std::string& paymentMethod = "CREDIT_CARD");
+                     const vector<pair<int, int>>& requestedItems,
+                     const string& paymentMethod = "CREDIT_CARD");
 
     bool cancelOrder(int orderId);
 
-    std::optional<Order> getOrderDetails(int orderId);
-    std::vector<Order> getCustomerOrders(int customerId);
-    std::vector<Order> getAllOrders();
-    std::vector<Payment> getOrderPayments(int orderId);
+    optional<Order> getOrderDetails(int orderId);
+    vector<Order> getCustomerOrders(int customerId);
+    vector<Order> getAllOrders();
+    vector<Payment> getOrderPayments(int orderId);
 };
 
 #endif // ORDER_SERVICE_HPP

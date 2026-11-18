@@ -5,6 +5,8 @@
 #include <string>
 #include "../database/DatabaseManager.hpp"
 
+using namespace std;
+
 struct RevenueSummary {
     int totalOrders = 0;
     double totalRevenue = 0.0;
@@ -12,7 +14,7 @@ struct RevenueSummary {
 };
 
 struct MonthlyRevenue {
-    std::string month;
+    string month;
     int ordersCount = 0;
     double revenue = 0.0;
     double avgOrderValue = 0.0;
@@ -20,39 +22,39 @@ struct MonthlyRevenue {
 
 struct CustomerSpending {
     int customerId = 0;
-    std::string name;
-    std::string email;
+    string name;
+    string email;
     int completedOrders = 0;
     double totalSpent = 0.0;
 };
 
 struct ProductSalesStat {
     int productId = 0;
-    std::string productName;
-    std::string categoryName;
+    string productName;
+    string categoryName;
     int unitsSold = 0;
     double totalRevenue = 0.0;
 };
 
 struct EmployeeWorkload {
     int employeeId = 0;
-    std::string name;
-    std::string role;
+    string name;
+    string role;
     int totalAssigned = 0;
     int activeTickets = 0;
     int resolvedTickets = 0;
 };
 
 struct TicketStatusCount {
-    std::string status;
-    std::string priority;
+    string status;
+    string priority;
     int count = 0;
 };
 
 struct LowStockItem {
     int productId = 0;
-    std::string name;
-    std::string categoryName;
+    string name;
+    string categoryName;
     int stockQuantity = 0;
     double price = 0.0;
 };
@@ -65,12 +67,12 @@ public:
     explicit AnalyticsRepository(DatabaseManager& dbManager = DatabaseManager::getInstance());
 
     RevenueSummary getOverallRevenueMetrics();
-    std::vector<MonthlyRevenue> getMonthlyRevenueTrend();
-    std::vector<CustomerSpending> getTopCustomers(int limit = 5);
-    std::vector<ProductSalesStat> getBestSellingProducts(int limit = 10);
-    std::vector<EmployeeWorkload> getEmployeeWorkloads();
-    std::vector<TicketStatusCount> getTicketStatusBreakdown();
-    std::vector<LowStockItem> getLowStockAlerts(int threshold = 10);
+    vector<MonthlyRevenue> getMonthlyRevenueTrend();
+    vector<CustomerSpending> getTopCustomers(int limit = 5);
+    vector<ProductSalesStat> getBestSellingProducts(int limit = 10);
+    vector<EmployeeWorkload> getEmployeeWorkloads();
+    vector<TicketStatusCount> getTicketStatusBreakdown();
+    vector<LowStockItem> getLowStockAlerts(int threshold = 10);
 };
 
 #endif // ANALYTICS_REPOSITORY_HPP

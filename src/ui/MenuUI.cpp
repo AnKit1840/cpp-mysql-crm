@@ -3,18 +3,20 @@
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
+
 MenuUI::MenuUI() {
     try {
         ticketManager.syncFromDatabase();
-    } catch (const std::exception& e) {
-        std::cerr << "[Warning] Could not initialize ticket queues from database: " << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << "[Warning] Could not initialize ticket queues from database: " << e.what() << "\n";
     }
 }
 
 void MenuUI::run() {
     while (true) {
         ConsoleUtils::printHeader("CRM MANAGEMENT SYSTEM");
-        std::cout << "1. Customer Management\n"
+        cout << "1. Customer Management\n"
                   << "2. Employee Management\n"
                   << "3. Product Management\n"
                   << "4. Order Management\n"
@@ -33,10 +35,10 @@ void MenuUI::run() {
             case 5: handleTicketMenu(); break;
             case 6: handleAnalyticsMenu(); break;
             case 7:
-                std::cout << "\nExiting CRM Management System. Goodbye!\n";
+                cout << "\nExiting CRM Management System. Goodbye!\n";
                 return;
             default:
-                std::cout << "Invalid selection. Please choose 1-7.\n";
+                cout << "Invalid selection. Please choose 1-7.\n";
                 ConsoleUtils::pause();
                 break;
         }
@@ -50,7 +52,7 @@ void MenuUI::run() {
 void MenuUI::handleCustomerMenu() {
     while (true) {
         ConsoleUtils::printHeader("CUSTOMER MANAGEMENT");
-        std::cout << "1. Add New Customer\n"
+        cout << "1. Add New Customer\n"
                   << "2. Update Customer Details\n"
                   << "3. Delete Customer\n"
                   << "4. Search Customers (ID, Name, or Email)\n"
@@ -71,7 +73,7 @@ void MenuUI::handleCustomerMenu() {
             case 5: displayCustomersAction(); break;
             case 6: viewCustomerOrdersAction(); break;
             case 7: viewCustomerTicketsAction(); break;
-            default: std::cout << "Invalid option. Please choose 1-8.\n"; break;
+            default: cout << "Invalid option. Please choose 1-8.\n"; break;
         }
         ConsoleUtils::pause();
     }
@@ -79,16 +81,16 @@ void MenuUI::handleCustomerMenu() {
 
 void MenuUI::addCustomerAction() {
     ConsoleUtils::printHeader("ADD NEW CUSTOMER");
-    std::string name = ConsoleUtils::readLine("Enter full name: ");
-    std::string email = ConsoleUtils::readLine("Enter email: ");
-    std::string phone = ConsoleUtils::readLine("Enter phone: ");
-    std::string address = ConsoleUtils::readLine("Enter address: ");
+    string name = ConsoleUtils::readLine("Enter full name: ");
+    string email = ConsoleUtils::readLine("Enter email: ");
+    string phone = ConsoleUtils::readLine("Enter phone: ");
+    string address = ConsoleUtils::readLine("Enter address: ");
 
     try {
         Customer c = customerService.registerCustomer(name, email, phone, address);
-        std::cout << "\n[SUCCESS] Customer created successfully with ID #" << c.getId() << "!\n";
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+        cout << "\n[SUCCESS] Customer created successfully with ID #" << c.getId() << "!\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -97,34 +99,34 @@ void MenuUI::updateCustomerAction() {
     int id = ConsoleUtils::readInt("Enter Customer ID to update: ");
     auto existing = customerService.getCustomerById(id);
     if (!existing.has_value()) {
-        std::cout << "[ERROR] Customer ID #" << id << " not found.\n";
+        cout << "[ERROR] Customer ID #" << id << " not found.\n";
         return;
     }
 
-    std::cout << "\nExisting details:\n";
+    cout << "\nExisting details:\n";
     existing->displayDetails();
-    std::cout << "\nEnter updated values (leave blank to keep existing):\n";
+    cout << "\nEnter updated values (leave blank to keep existing):\n";
 
-    std::string name = ConsoleUtils::readLine("New Name [" + existing->getName() + "]: ");
+    string name = ConsoleUtils::readLine("New Name [" + existing->getName() + "]: ");
     if (name.empty()) name = existing->getName();
 
-    std::string email = ConsoleUtils::readLine("New Email [" + existing->getEmail() + "]: ");
+    string email = ConsoleUtils::readLine("New Email [" + existing->getEmail() + "]: ");
     if (email.empty()) email = existing->getEmail();
 
-    std::string phone = ConsoleUtils::readLine("New Phone [" + existing->getPhone() + "]: ");
+    string phone = ConsoleUtils::readLine("New Phone [" + existing->getPhone() + "]: ");
     if (phone.empty()) phone = existing->getPhone();
 
-    std::string address = ConsoleUtils::readLine("New Address [" + existing->getAddress() + "]: ");
+    string address = ConsoleUtils::readLine("New Address [" + existing->getAddress() + "]: ");
     if (address.empty()) address = existing->getAddress();
 
     try {
         if (customerService.updateCustomer(id, name, email, phone, address)) {
-            std::cout << "\n[SUCCESS] Customer #" << id << " updated successfully!\n";
+            cout << "\n[SUCCESS] Customer #" << id << " updated successfully!\n";
         } else {
-            std::cout << "\n[ERROR] Failed to update customer record.\n";
+            cout << "\n[ERROR] Failed to update customer record.\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -134,26 +136,26 @@ void MenuUI::deleteCustomerAction() {
 
     try {
         if (customerService.deleteCustomer(id)) {
-            std::cout << "\n[SUCCESS] Customer #" << id << " deleted successfully.\n";
+            cout << "\n[SUCCESS] Customer #" << id << " deleted successfully.\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
 void MenuUI::searchCustomerAction() {
     ConsoleUtils::printHeader("SEARCH CUSTOMERS");
-    std::string term = ConsoleUtils::readLine("Enter search keyword (ID, Name, or Email): ");
+    string term = ConsoleUtils::readLine("Enter search keyword (ID, Name, or Email): ");
     auto results = customerService.searchCustomers(term);
 
     if (results.empty()) {
-        std::cout << "No matching customers found.\n";
+        cout << "No matching customers found.\n";
         return;
     }
 
-    std::cout << "\nFound " << results.size() << " match(es):\n";
+    cout << "\nFound " << results.size() << " match(es):\n";
     for (const auto& c : results) {
-        std::cout << "----------------------------------------\n";
+        cout << "----------------------------------------\n";
         c.displayDetails();
     }
 }
@@ -162,22 +164,22 @@ void MenuUI::displayCustomersAction() {
     ConsoleUtils::printHeader("ALL CUSTOMERS");
     auto list = customerService.getAllCustomers();
     if (list.empty()) {
-        std::cout << "No customer records found.\n";
+        cout << "No customer records found.\n";
         return;
     }
 
-    std::cout << std::left << std::setw(6) << "ID"
-              << std::setw(20) << "Name"
-              << std::setw(28) << "Email"
-              << std::setw(16) << "Phone"
+    cout << left << setw(6) << "ID"
+              << setw(20) << "Name"
+              << setw(28) << "Email"
+              << setw(16) << "Phone"
               << "Address\n"
               << "--------------------------------------------------------------------------------\n";
 
     for (const auto& c : list) {
-        std::cout << std::left << std::setw(6) << c.getId()
-                  << std::setw(20) << c.getName()
-                  << std::setw(28) << c.getEmail()
-                  << std::setw(16) << c.getPhone()
+        cout << left << setw(6) << c.getId()
+                  << setw(20) << c.getName()
+                  << setw(28) << c.getEmail()
+                  << setw(16) << c.getPhone()
                   << c.getAddress() << "\n";
     }
 }
@@ -188,15 +190,15 @@ void MenuUI::viewCustomerOrdersAction() {
     auto orders = orderService.getCustomerOrders(id);
 
     if (orders.empty()) {
-        std::cout << "No orders found for Customer #" << id << ".\n";
+        cout << "No orders found for Customer #" << id << ".\n";
         return;
     }
 
-    std::cout << "\nFound " << orders.size() << " order(s):\n";
+    cout << "\nFound " << orders.size() << " order(s):\n";
     for (const auto& ord : orders) {
         auto fullOrder = orderService.getOrderDetails(ord.getId());
         if (fullOrder.has_value()) {
-            std::cout << "----------------------------------------\n";
+            cout << "----------------------------------------\n";
             fullOrder->displayOrderSummary();
         }
     }
@@ -208,13 +210,13 @@ void MenuUI::viewCustomerTicketsAction() {
     auto tickets = ticketManager.getCustomerTickets(id);
 
     if (tickets.empty()) {
-        std::cout << "No support tickets found for Customer #" << id << ".\n";
+        cout << "No support tickets found for Customer #" << id << ".\n";
         return;
     }
 
-    std::cout << "\nFound " << tickets.size() << " ticket(s):\n";
+    cout << "\nFound " << tickets.size() << " ticket(s):\n";
     for (const auto& t : tickets) {
-        std::cout << "----------------------------------------\n";
+        cout << "----------------------------------------\n";
         t.displayDetails();
     }
 }
@@ -226,7 +228,7 @@ void MenuUI::viewCustomerTicketsAction() {
 void MenuUI::handleEmployeeMenu() {
     while (true) {
         ConsoleUtils::printHeader("EMPLOYEE MANAGEMENT");
-        std::cout << "1. Add New Employee\n"
+        cout << "1. Add New Employee\n"
                   << "2. Update Employee Details\n"
                   << "3. Delete Employee\n"
                   << "4. Search Employees\n"
@@ -247,7 +249,7 @@ void MenuUI::handleEmployeeMenu() {
             case 5: displayEmployeesAction(); break;
             case 6: assignEmployeeToTicketAction(); break;
             case 7: viewEmployeeWorkloadAction(); break;
-            default: std::cout << "Invalid option. Please choose 1-8.\n"; break;
+            default: cout << "Invalid option. Please choose 1-8.\n"; break;
         }
         ConsoleUtils::pause();
     }
@@ -255,17 +257,17 @@ void MenuUI::handleEmployeeMenu() {
 
 void MenuUI::addEmployeeAction() {
     ConsoleUtils::printHeader("ADD NEW EMPLOYEE");
-    std::string name = ConsoleUtils::readLine("Enter employee name: ");
-    std::string email = ConsoleUtils::readLine("Enter internal email: ");
-    std::string phone = ConsoleUtils::readLine("Enter phone: ");
-    std::string role = ConsoleUtils::readLine("Enter role (e.g. Support Specialist, Tech Lead): ");
-    std::string joining = ConsoleUtils::readLine("Enter joining date (YYYY-MM-DD or leave empty for today): ");
+    string name = ConsoleUtils::readLine("Enter employee name: ");
+    string email = ConsoleUtils::readLine("Enter internal email: ");
+    string phone = ConsoleUtils::readLine("Enter phone: ");
+    string role = ConsoleUtils::readLine("Enter role (e.g. Support Specialist, Tech Lead): ");
+    string joining = ConsoleUtils::readLine("Enter joining date (YYYY-MM-DD or leave empty for today): ");
 
     try {
         Employee emp = employeeService.registerEmployee(name, email, phone, role, joining);
-        std::cout << "\n[SUCCESS] Employee registered with ID #" << emp.getId() << "!\n";
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+        cout << "\n[SUCCESS] Employee registered with ID #" << emp.getId() << "!\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -274,34 +276,34 @@ void MenuUI::updateEmployeeAction() {
     int id = ConsoleUtils::readInt("Enter Employee ID: ");
     auto existing = employeeService.getEmployeeById(id);
     if (!existing.has_value()) {
-        std::cout << "[ERROR] Employee ID #" << id << " not found.\n";
+        cout << "[ERROR] Employee ID #" << id << " not found.\n";
         return;
     }
 
-    std::cout << "\nExisting details:\n";
+    cout << "\nExisting details:\n";
     existing->displayDetails();
 
-    std::string name = ConsoleUtils::readLine("New Name [" + existing->getName() + "]: ");
+    string name = ConsoleUtils::readLine("New Name [" + existing->getName() + "]: ");
     if (name.empty()) name = existing->getName();
 
-    std::string email = ConsoleUtils::readLine("New Email [" + existing->getEmail() + "]: ");
+    string email = ConsoleUtils::readLine("New Email [" + existing->getEmail() + "]: ");
     if (email.empty()) email = existing->getEmail();
 
-    std::string phone = ConsoleUtils::readLine("New Phone [" + existing->getPhone() + "]: ");
+    string phone = ConsoleUtils::readLine("New Phone [" + existing->getPhone() + "]: ");
     if (phone.empty()) phone = existing->getPhone();
 
-    std::string role = ConsoleUtils::readLine("New Role [" + existing->getEmployeeRole() + "]: ");
+    string role = ConsoleUtils::readLine("New Role [" + existing->getEmployeeRole() + "]: ");
     if (role.empty()) role = existing->getEmployeeRole();
 
-    std::string joining = ConsoleUtils::readLine("New Joining Date [" + existing->getJoiningDate() + "]: ");
+    string joining = ConsoleUtils::readLine("New Joining Date [" + existing->getJoiningDate() + "]: ");
     if (joining.empty()) joining = existing->getJoiningDate();
 
     try {
         if (employeeService.updateEmployee(id, name, email, phone, role, joining)) {
-            std::cout << "\n[SUCCESS] Employee #" << id << " updated successfully!\n";
+            cout << "\n[SUCCESS] Employee #" << id << " updated successfully!\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -311,26 +313,26 @@ void MenuUI::deleteEmployeeAction() {
 
     try {
         if (employeeService.deleteEmployee(id)) {
-            std::cout << "\n[SUCCESS] Employee #" << id << " deleted successfully.\n";
+            cout << "\n[SUCCESS] Employee #" << id << " deleted successfully.\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
 void MenuUI::searchEmployeeAction() {
     ConsoleUtils::printHeader("SEARCH EMPLOYEES");
-    std::string query = ConsoleUtils::readLine("Enter search keyword: ");
+    string query = ConsoleUtils::readLine("Enter search keyword: ");
     auto results = employeeService.searchEmployees(query);
 
     if (results.empty()) {
-        std::cout << "No employees found matching query.\n";
+        cout << "No employees found matching query.\n";
         return;
     }
 
-    std::cout << "\nFound " << results.size() << " match(es):\n";
+    cout << "\nFound " << results.size() << " match(es):\n";
     for (const auto& emp : results) {
-        std::cout << "----------------------------------------\n";
+        cout << "----------------------------------------\n";
         emp.displayDetails();
     }
 }
@@ -339,22 +341,22 @@ void MenuUI::displayEmployeesAction() {
     ConsoleUtils::printHeader("ALL EMPLOYEES");
     auto list = employeeService.getAllEmployees();
     if (list.empty()) {
-        std::cout << "No employee records found.\n";
+        cout << "No employee records found.\n";
         return;
     }
 
-    std::cout << std::left << std::setw(6) << "ID"
-              << std::setw(20) << "Name"
-              << std::setw(32) << "Email"
-              << std::setw(24) << "Role"
+    cout << left << setw(6) << "ID"
+              << setw(20) << "Name"
+              << setw(32) << "Email"
+              << setw(24) << "Role"
               << "Joining Date\n"
               << "-----------------------------------------------------------------------------------------\n";
 
     for (const auto& emp : list) {
-        std::cout << std::left << std::setw(6) << emp.getId()
-                  << std::setw(20) << emp.getName()
-                  << std::setw(32) << emp.getEmail()
-                  << std::setw(24) << emp.getEmployeeRole()
+        cout << left << setw(6) << emp.getId()
+                  << setw(20) << emp.getName()
+                  << setw(32) << emp.getEmail()
+                  << setw(24) << emp.getEmployeeRole()
                   << emp.getJoiningDate() << "\n";
     }
 }
@@ -366,10 +368,10 @@ void MenuUI::assignEmployeeToTicketAction() {
 
     try {
         if (ticketManager.assignTicket(ticketId, empId)) {
-            std::cout << "\n[SUCCESS] Ticket #" << ticketId << " assigned to Employee #" << empId << "!\n";
+            cout << "\n[SUCCESS] Ticket #" << ticketId << " assigned to Employee #" << empId << "!\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -385,7 +387,7 @@ void MenuUI::viewEmployeeWorkloadAction() {
 void MenuUI::handleProductMenu() {
     while (true) {
         ConsoleUtils::printHeader("PRODUCT MANAGEMENT");
-        std::cout << "1. Add New Product\n"
+        cout << "1. Add New Product\n"
                   << "2. Update Product Details\n"
                   << "3. Update Product Price\n"
                   << "4. Update Inventory / Stock Quantity\n"
@@ -408,7 +410,7 @@ void MenuUI::handleProductMenu() {
             case 6: searchProductAction(); break;
             case 7: displayProductsAction(); break;
             case 8: displayLowStockAction(); break;
-            default: std::cout << "Invalid option. Please choose 1-9.\n"; break;
+            default: cout << "Invalid option. Please choose 1-9.\n"; break;
         }
         ConsoleUtils::pause();
     }
@@ -417,16 +419,16 @@ void MenuUI::handleProductMenu() {
 void MenuUI::addProductAction() {
     ConsoleUtils::printHeader("ADD NEW PRODUCT");
     int catId = ConsoleUtils::readInt("Enter Category ID (1=Software, 2=Hardware, 3=Networking, 4=Office): ");
-    std::string name = ConsoleUtils::readLine("Enter product name: ");
+    string name = ConsoleUtils::readLine("Enter product name: ");
     double price = ConsoleUtils::readDouble("Enter unit price ($): ");
     int stock = ConsoleUtils::readInt("Enter initial stock quantity: ");
-    std::string desc = ConsoleUtils::readLine("Enter product description: ");
+    string desc = ConsoleUtils::readLine("Enter product description: ");
 
     try {
         Product p = productService.addProduct(catId, name, price, stock, desc);
-        std::cout << "\n[SUCCESS] Product registered with ID #" << p.getId() << "!\n";
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+        cout << "\n[SUCCESS] Product registered with ID #" << p.getId() << "!\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -435,28 +437,28 @@ void MenuUI::updateProductAction() {
     int id = ConsoleUtils::readInt("Enter Product ID: ");
     auto existing = productService.getProductById(id);
     if (!existing.has_value()) {
-        std::cout << "[ERROR] Product ID #" << id << " not found.\n";
+        cout << "[ERROR] Product ID #" << id << " not found.\n";
         return;
     }
 
-    std::cout << "\nExisting details:\n";
+    cout << "\nExisting details:\n";
     existing->displayDetails();
 
-    int catId = ConsoleUtils::readInt("New Category ID [" + std::to_string(existing->getCategoryId()) + "]: ", existing->getCategoryId());
-    std::string name = ConsoleUtils::readLine("New Name [" + existing->getName() + "]: ");
+    int catId = ConsoleUtils::readInt("New Category ID [" + to_string(existing->getCategoryId()) + "]: ", existing->getCategoryId());
+    string name = ConsoleUtils::readLine("New Name [" + existing->getName() + "]: ");
     if (name.empty()) name = existing->getName();
 
-    double price = ConsoleUtils::readDouble("New Price [$" + std::to_string(existing->getPrice()) + "]: ", existing->getPrice());
-    int stock = ConsoleUtils::readInt("New Stock [" + std::to_string(existing->getStockQuantity()) + "]: ", existing->getStockQuantity());
-    std::string desc = ConsoleUtils::readLine("New Description: ");
+    double price = ConsoleUtils::readDouble("New Price [$" + to_string(existing->getPrice()) + "]: ", existing->getPrice());
+    int stock = ConsoleUtils::readInt("New Stock [" + to_string(existing->getStockQuantity()) + "]: ", existing->getStockQuantity());
+    string desc = ConsoleUtils::readLine("New Description: ");
     if (desc.empty()) desc = existing->getDescription();
 
     try {
         if (productService.updateProductDetails(id, catId, name, price, stock, desc)) {
-            std::cout << "\n[SUCCESS] Product #" << id << " updated successfully!\n";
+            cout << "\n[SUCCESS] Product #" << id << " updated successfully!\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -467,10 +469,10 @@ void MenuUI::updatePriceAction() {
 
     try {
         if (productService.updatePrice(id, price)) {
-            std::cout << "\n[SUCCESS] Price updated for Product #" << id << "!\n";
+            cout << "\n[SUCCESS] Price updated for Product #" << id << "!\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -481,10 +483,10 @@ void MenuUI::updateStockAction() {
 
     try {
         if (productService.updateInventory(id, stock)) {
-            std::cout << "\n[SUCCESS] Inventory stock updated for Product #" << id << "!\n";
+            cout << "\n[SUCCESS] Inventory stock updated for Product #" << id << "!\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -494,26 +496,26 @@ void MenuUI::deleteProductAction() {
 
     try {
         if (productService.deleteProduct(id)) {
-            std::cout << "\n[SUCCESS] Product #" << id << " deleted successfully.\n";
+            cout << "\n[SUCCESS] Product #" << id << " deleted successfully.\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
 void MenuUI::searchProductAction() {
     ConsoleUtils::printHeader("SEARCH PRODUCTS");
-    std::string query = ConsoleUtils::readLine("Enter search keyword: ");
+    string query = ConsoleUtils::readLine("Enter search keyword: ");
     auto results = productService.searchProducts(query);
 
     if (results.empty()) {
-        std::cout << "No matching products found.\n";
+        cout << "No matching products found.\n";
         return;
     }
 
-    std::cout << "\nFound " << results.size() << " product(s):\n";
+    cout << "\nFound " << results.size() << " product(s):\n";
     for (const auto& prod : results) {
-        std::cout << "----------------------------------------\n";
+        cout << "----------------------------------------\n";
         prod.displayDetails();
     }
 }
@@ -522,22 +524,22 @@ void MenuUI::displayProductsAction() {
     ConsoleUtils::printHeader("ALL PRODUCTS");
     auto list = productService.getAllProducts();
     if (list.empty()) {
-        std::cout << "No products available in catalogue.\n";
+        cout << "No products available in catalogue.\n";
         return;
     }
 
-    std::cout << std::left << std::setw(6) << "ID"
-              << std::setw(34) << "Name"
-              << std::setw(22) << "Category"
-              << std::setw(12) << "Price"
+    cout << left << setw(6) << "ID"
+              << setw(34) << "Name"
+              << setw(22) << "Category"
+              << setw(12) << "Price"
               << "Stock Qty\n"
               << "--------------------------------------------------------------------------------------\n";
 
     for (const auto& p : list) {
-        std::cout << std::left << std::setw(6) << p.getId()
-                  << std::setw(34) << p.getName()
-                  << std::setw(22) << p.getCategoryName()
-                  << "$" << std::fixed << std::setprecision(2) << std::setw(11) << p.getPrice()
+        cout << left << setw(6) << p.getId()
+                  << setw(34) << p.getName()
+                  << setw(22) << p.getCategoryName()
+                  << "$" << fixed << setprecision(2) << setw(11) << p.getPrice()
                   << p.getStockQuantity() << (p.isLowStock() ? " [LOW STOCK]" : "") << "\n";
     }
 }
@@ -554,7 +556,7 @@ void MenuUI::displayLowStockAction() {
 void MenuUI::handleOrderMenu() {
     while (true) {
         ConsoleUtils::printHeader("ORDER MANAGEMENT");
-        std::cout << "1. Place New Order (Multi-Item with ACID Transaction)\n"
+        cout << "1. Place New Order (Multi-Item with ACID Transaction)\n"
                   << "2. View Order Details\n"
                   << "3. View Customer Order History\n"
                   << "4. Cancel Order (Rollback / Inventory Restoration)\n"
@@ -571,7 +573,7 @@ void MenuUI::handleOrderMenu() {
             case 3: viewCustomerOrdersAction(); break;
             case 4: cancelOrderAction(); break;
             case 5: displayAllOrdersAction(); break;
-            default: std::cout << "Invalid option. Please choose 1-6.\n"; break;
+            default: cout << "Invalid option. Please choose 1-6.\n"; break;
         }
         ConsoleUtils::pause();
     }
@@ -581,33 +583,33 @@ void MenuUI::placeOrderAction() {
     ConsoleUtils::printHeader("PLACE NEW ORDER (ACID TRANSACTION)");
     int customerId = ConsoleUtils::readInt("Enter Customer ID: ");
 
-    std::vector<std::pair<int, int>> orderItems;
+    vector<pair<int, int>> orderItems;
     while (true) {
         int prodId = ConsoleUtils::readInt("Enter Product ID to add (or 0 when done): ");
         if (prodId == 0) {
             if (orderItems.empty()) {
-                std::cout << "Order must have at least one product. Please add an item.\n";
+                cout << "Order must have at least one product. Please add an item.\n";
                 continue;
             }
             break;
         }
         int qty = ConsoleUtils::readInt("Enter quantity: ");
         if (qty <= 0) {
-            std::cout << "Quantity must be greater than zero.\n";
+            cout << "Quantity must be greater than zero.\n";
             continue;
         }
         orderItems.emplace_back(prodId, qty);
-        std::cout << "Added Product #" << prodId << " (Qty: " << qty << ") to cart.\n";
+        cout << "Added Product #" << prodId << " (Qty: " << qty << ") to cart.\n";
     }
 
-    std::cout << "\nSelect Payment Method:\n"
+    cout << "\nSelect Payment Method:\n"
               << "1. CREDIT_CARD\n"
               << "2. DEBIT_CARD\n"
               << "3. UPI\n"
               << "4. BANK_TRANSFER\n"
               << "5. CASH\n";
     int payChoice = ConsoleUtils::readInt("Enter choice (1-5): ", 1);
-    std::string method = "CREDIT_CARD";
+    string method = "CREDIT_CARD";
     if (payChoice == 2) method = "DEBIT_CARD";
     else if (payChoice == 3) method = "UPI";
     else if (payChoice == 4) method = "BANK_TRANSFER";
@@ -615,14 +617,14 @@ void MenuUI::placeOrderAction() {
 
     try {
         Order ord = orderService.placeOrder(customerId, orderItems, method);
-        std::cout << "\n========================================\n"
+        cout << "\n========================================\n"
                   << "       ORDER PLACED SUCCESSFULLY!       \n"
                   << "========================================\n";
         ord.displayOrderSummary();
-        std::cout << "Payment Method: " << method << " (PAID)\n"
+        cout << "Payment Method: " << method << " (PAID)\n"
                   << "Inventory deducted automatically via database transaction.\n";
-    } catch (const std::exception& e) {
-        std::cout << "\n[TRANSACTION ROLLED BACK] " << e.what() << "\n"
+    } catch (const exception& e) {
+        cout << "\n[TRANSACTION ROLLED BACK] " << e.what() << "\n"
                   << "No inventory or financial changes were committed.\n";
     }
 }
@@ -633,16 +635,16 @@ void MenuUI::viewOrderDetailsAction() {
     auto order = orderService.getOrderDetails(orderId);
 
     if (!order.has_value()) {
-        std::cout << "[ERROR] Order #" << orderId << " not found.\n";
+        cout << "[ERROR] Order #" << orderId << " not found.\n";
         return;
     }
 
     order->displayOrderSummary();
     auto payments = orderService.getOrderPayments(orderId);
     if (!payments.empty()) {
-        std::cout << "\nAssociated Payment History:\n";
+        cout << "\nAssociated Payment History:\n";
         for (const auto& p : payments) {
-            std::cout << "  ";
+            cout << "  ";
             p.display();
         }
     }
@@ -654,12 +656,12 @@ void MenuUI::cancelOrderAction() {
 
     try {
         if (orderService.cancelOrder(orderId)) {
-            std::cout << "\n[SUCCESS] Order #" << orderId << " has been cancelled.\n"
+            cout << "\n[SUCCESS] Order #" << orderId << " has been cancelled.\n"
                       << "All reserved inventory has been restored to catalogue.\n"
                       << "Associated payments marked as REFUNDED.\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -668,23 +670,23 @@ void MenuUI::displayAllOrdersAction() {
     auto orders = orderService.getAllOrders();
 
     if (orders.empty()) {
-        std::cout << "No orders found.\n";
+        cout << "No orders found.\n";
         return;
     }
 
-    std::cout << std::left << std::setw(8) << "Order ID"
-              << std::setw(20) << "Customer"
-              << std::setw(22) << "Date"
-              << std::setw(14) << "Status"
+    cout << left << setw(8) << "Order ID"
+              << setw(20) << "Customer"
+              << setw(22) << "Date"
+              << setw(14) << "Status"
               << "Total Amount\n"
               << "--------------------------------------------------------------------------------\n";
 
     for (const auto& ord : orders) {
-        std::cout << std::left << std::setw(8) << ("#" + std::to_string(ord.getId()))
-                  << std::setw(20) << ord.getCustomerName()
-                  << std::setw(22) << ord.getOrderDate()
-                  << std::setw(14) << ord.getStatus()
-                  << "$" << std::fixed << std::setprecision(2) << ord.getTotalAmount() << "\n";
+        cout << left << setw(8) << ("#" + to_string(ord.getId()))
+                  << setw(20) << ord.getCustomerName()
+                  << setw(22) << ord.getOrderDate()
+                  << setw(14) << ord.getStatus()
+                  << "$" << fixed << setprecision(2) << ord.getTotalAmount() << "\n";
     }
 }
 
@@ -696,7 +698,7 @@ void MenuUI::handleTicketMenu() {
     while (true) {
         ConsoleUtils::printHeader("SUPPORT TICKET MANAGEMENT (QUEUE & PRIORITY QUEUE)");
         auto stats = ticketManager.getQueueStatistics();
-        std::cout << "[In-Memory Queues] Urgent Priority Queue: " << stats.urgentQueueSize
+        cout << "[In-Memory Queues] Urgent Priority Queue: " << stats.urgentQueueSize
                   << " | Normal FIFO Queue: " << stats.normalQueueSize
                   << " | Total Pending: " << stats.totalPending << "\n"
                   << "--------------------------------------------------------\n"
@@ -721,7 +723,7 @@ void MenuUI::handleTicketMenu() {
             case 5: resolveTicketAction(); break;
             case 6: viewTicketHistoryAction(); break;
             case 7: displayAllTicketsAction(); break;
-            default: std::cout << "Invalid option. Please choose 1-8.\n"; break;
+            default: cout << "Invalid option. Please choose 1-8.\n"; break;
         }
         ConsoleUtils::pause();
     }
@@ -730,10 +732,10 @@ void MenuUI::handleTicketMenu() {
 void MenuUI::createTicketAction() {
     ConsoleUtils::printHeader("CREATE SUPPORT TICKET");
     int customerId = ConsoleUtils::readInt("Enter Customer ID: ");
-    std::string subject = ConsoleUtils::readLine("Enter Ticket Subject: ");
-    std::string desc = ConsoleUtils::readLine("Enter Detailed Description: ");
+    string subject = ConsoleUtils::readLine("Enter Ticket Subject: ");
+    string desc = ConsoleUtils::readLine("Enter Detailed Description: ");
 
-    std::cout << "Select Priority Tier:\n"
+    cout << "Select Priority Tier:\n"
               << "1. CRITICAL (Urgent - Highest Priority Queue)\n"
               << "2. HIGH     (Urgent - Priority Queue)\n"
               << "3. NORMAL   (Standard FIFO Queue)\n"
@@ -748,45 +750,45 @@ void MenuUI::createTicketAction() {
 
     try {
         SupportTicket ticket = ticketManager.createTicket(customerId, subject, desc, priority);
-        std::cout << "\n[SUCCESS] Ticket #" << ticket.getId() << " created successfully!\n";
+        cout << "\n[SUCCESS] Ticket #" << ticket.getId() << " created successfully!\n";
         if (ticket.isUrgent()) {
-            std::cout << ">> Enqueued into std::priority_queue (Max-Heap by urgency & age tie-breaker).\n";
+            cout << ">> Enqueued into priority_queue (Max-Heap by urgency & age tie-breaker).\n";
         } else {
-            std::cout << ">> Enqueued into std::queue (First In, First Out).\n";
+            cout << ">> Enqueued into queue (First In, First Out).\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
 void MenuUI::processNextTicketAction() {
     ConsoleUtils::printHeader("PROCESS NEXT TICKET");
     int employeeId = ConsoleUtils::readInt("Enter Employee ID of handler: ");
-    std::string notes = ConsoleUtils::readLine("Enter initial investigation notes: ");
+    string notes = ConsoleUtils::readLine("Enter initial investigation notes: ");
 
     try {
         auto ticket = ticketManager.processNextTicket(employeeId, notes);
         if (!ticket.has_value()) {
-            std::cout << "\nAll ticket queues are currently empty! No pending tickets.\n";
+            cout << "\nAll ticket queues are currently empty! No pending tickets.\n";
             return;
         }
 
-        std::cout << "\n[SUCCESS] Next ticket popped and assigned for processing:\n"
+        cout << "\n[SUCCESS] Next ticket popped and assigned for processing:\n"
                   << "----------------------------------------\n";
         ticket->displayDetails();
-        std::cout << "----------------------------------------\n"
+        cout << "----------------------------------------\n"
                   << "Status moved to IN_PROGRESS in database.\n";
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
 void MenuUI::viewQueueStatusAction() {
     ConsoleUtils::printHeader("IN-MEMORY TICKET QUEUE DIAGNOSTICS");
     auto stats = ticketManager.getQueueStatistics();
-    std::cout << "1. Urgent Priority Queue (std::priority_queue) : " << stats.urgentQueueSize << " ticket(s)\n"
+    cout << "1. Urgent Priority Queue (priority_queue) : " << stats.urgentQueueSize << " ticket(s)\n"
               << "   - Ordering: CRITICAL > HIGH; older tickets first when equal priority.\n"
-              << "2. Normal Standard Queue (std::queue)          : " << stats.normalQueueSize << " ticket(s)\n"
+              << "2. Normal Standard Queue (queue)          : " << stats.normalQueueSize << " ticket(s)\n"
               << "   - Ordering: Strict FIFO (First-In, First-Out).\n"
               << "--------------------------------------------------------\n"
               << "Total In-Memory Pending Tickets                  : " << stats.totalPending << "\n";
@@ -799,10 +801,10 @@ void MenuUI::assignTicketAction() {
 
     try {
         if (ticketManager.assignTicket(ticketId, empId)) {
-            std::cout << "\n[SUCCESS] Ticket #" << ticketId << " assigned to Employee #" << empId << "!\n";
+            cout << "\n[SUCCESS] Ticket #" << ticketId << " assigned to Employee #" << empId << "!\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -810,14 +812,14 @@ void MenuUI::resolveTicketAction() {
     ConsoleUtils::printHeader("RESOLVE / CLOSE TICKET");
     int ticketId = ConsoleUtils::readInt("Enter Ticket ID to resolve: ");
     int empId = ConsoleUtils::readInt("Enter Employee ID resolving this ticket: ");
-    std::string notes = ConsoleUtils::readLine("Enter resolution notes: ");
+    string notes = ConsoleUtils::readLine("Enter resolution notes: ");
 
     try {
         if (ticketManager.resolveTicket(ticketId, empId, notes)) {
-            std::cout << "\n[SUCCESS] Ticket #" << ticketId << " resolved and marked in database.\n";
+            cout << "\n[SUCCESS] Ticket #" << ticketId << " resolved and marked in database.\n";
         }
-    } catch (const std::exception& e) {
-        std::cout << "\n[ERROR] " << e.what() << "\n";
+    } catch (const exception& e) {
+        cout << "\n[ERROR] " << e.what() << "\n";
     }
 }
 
@@ -827,15 +829,15 @@ void MenuUI::viewTicketHistoryAction() {
     auto ticket = ticketManager.getTicketById(ticketId);
 
     if (!ticket.has_value()) {
-        std::cout << "[ERROR] Ticket #" << ticketId << " not found.\n";
+        cout << "[ERROR] Ticket #" << ticketId << " not found.\n";
         return;
     }
 
     ticket->displayDetails();
     auto history = ticketManager.getTicketHistory(ticketId);
-    std::cout << "\nAudit Log & Updates History:\n";
+    cout << "\nAudit Log & Updates History:\n";
     if (history.empty()) {
-        std::cout << "  No historical updates logged yet.\n";
+        cout << "  No historical updates logged yet.\n";
     } else {
         for (const auto& u : history) {
             u.display();
@@ -847,24 +849,24 @@ void MenuUI::displayAllTicketsAction() {
     ConsoleUtils::printHeader("ALL SUPPORT TICKETS");
     auto list = ticketManager.getAllTickets();
     if (list.empty()) {
-        std::cout << "No support tickets found.\n";
+        cout << "No support tickets found.\n";
         return;
     }
 
-    std::cout << std::left << std::setw(6) << "ID"
-              << std::setw(12) << "Priority"
-              << std::setw(14) << "Status"
-              << std::setw(20) << "Customer"
-              << std::setw(20) << "Assigned To"
+    cout << left << setw(6) << "ID"
+              << setw(12) << "Priority"
+              << setw(14) << "Status"
+              << setw(20) << "Customer"
+              << setw(20) << "Assigned To"
               << "Subject\n"
               << "------------------------------------------------------------------------------------------------\n";
 
     for (const auto& t : list) {
-        std::cout << std::left << std::setw(6) << ("#" + std::to_string(t.getId()))
-                  << std::setw(12) << priorityToString(t.getPriority())
-                  << std::setw(14) << statusToString(t.getStatus())
-                  << std::setw(20) << t.getCustomerName()
-                  << std::setw(20) << (t.getAssignedEmployeeId() == 0 ? "Unassigned" : t.getEmployeeName())
+        cout << left << setw(6) << ("#" + to_string(t.getId()))
+                  << setw(12) << priorityToString(t.getPriority())
+                  << setw(14) << statusToString(t.getStatus())
+                  << setw(20) << t.getCustomerName()
+                  << setw(20) << (t.getAssignedEmployeeId() == 0 ? "Unassigned" : t.getEmployeeName())
                   << t.getSubject() << "\n";
     }
 }
@@ -876,7 +878,7 @@ void MenuUI::displayAllTicketsAction() {
 void MenuUI::handleAnalyticsMenu() {
     while (true) {
         ConsoleUtils::printHeader("SALES & OPERATIONS ANALYTICS");
-        std::cout << "1. Executive Revenue Overview & AOV\n"
+        cout << "1. Executive Revenue Overview & AOV\n"
                   << "2. Monthly Revenue Trend Analysis\n"
                   << "3. Top 5 High-Value Customers (VIPs)\n"
                   << "4. Best-Selling Products by Revenue\n"
@@ -899,7 +901,7 @@ void MenuUI::handleAnalyticsMenu() {
             case 6: analyticsService.displayTicketStatusSummary(); break;
             case 7: analyticsService.displayLowStockAlerts(10); break;
             case 8: analyticsService.displayExecutiveDashboard(); break;
-            default: std::cout << "Invalid option. Please choose 1-9.\n"; break;
+            default: cout << "Invalid option. Please choose 1-9.\n"; break;
         }
         ConsoleUtils::pause();
     }

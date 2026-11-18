@@ -4,6 +4,8 @@
 #include "User.hpp"
 #include <iomanip>
 
+using namespace std;
+
 /**
  * @brief Employee entity inheriting from User.
  * Demonstrates:
@@ -12,25 +14,25 @@
  */
 class Employee : public User {
 private:
-    std::string employeeRole; // e.g., "Senior Support Specialist", "Account Manager"
-    std::string joiningDate;
+    string employeeRole; // e.g., "Senior Support Specialist", "Account Manager"
+    string joiningDate;
 
 public:
     Employee() : User(), employeeRole(""), joiningDate("") {}
-    Employee(int id, const std::string& name, const std::string& email,
-             const std::string& phone, const std::string& employeeRole,
-             const std::string& joiningDate, const std::string& createdAt = "")
+    Employee(int id, const string& name, const string& email,
+             const string& phone, const string& employeeRole,
+             const string& joiningDate, const string& createdAt = "")
         : User(id, name, email, phone, createdAt), 
           employeeRole(employeeRole), joiningDate(joiningDate) {}
 
-    std::string getEmployeeRole() const { return employeeRole; }
-    void setEmployeeRole(const std::string& role) { employeeRole = role; }
+    string getEmployeeRole() const { return employeeRole; }
+    void setEmployeeRole(const string& role) { employeeRole = role; }
 
-    std::string getJoiningDate() const { return joiningDate; }
-    void setJoiningDate(const std::string& date) { joiningDate = date; }
+    string getJoiningDate() const { return joiningDate; }
+    void setJoiningDate(const string& date) { joiningDate = date; }
 
     void displayDetails() const override {
-        std::cout << "Employee ID : " << id << "\n"
+        cout << "Employee ID : " << id << "\n"
                   << "Name        : " << name << "\n"
                   << "Email       : " << email << "\n"
                   << "Phone       : " << phone << "\n"
@@ -38,7 +40,7 @@ public:
                   << "Joining Date: " << (joiningDate.empty() ? "N/A" : joiningDate) << "\n";
     }
 
-    std::string getRole() const override {
+    string getRole() const override {
         return employeeRole;
     }
 };

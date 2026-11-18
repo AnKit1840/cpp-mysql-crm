@@ -1,15 +1,17 @@
 #include "../../include/repositories/CustomerRepository.hpp"
 #include <sstream>
 
+using namespace std;
+
 CustomerRepository::CustomerRepository(DatabaseManager& dbManager) : db(dbManager) {}
 
 bool CustomerRepository::addCustomer(Customer& customer) {
-    std::string safeName = db.escapeString(customer.getName());
-    std::string safeEmail = db.escapeString(customer.getEmail());
-    std::string safePhone = db.escapeString(customer.getPhone());
-    std::string safeAddress = db.escapeString(customer.getAddress());
+    string safeName = db.escapeString(customer.getName());
+    string safeEmail = db.escapeString(customer.getEmail());
+    string safePhone = db.escapeString(customer.getPhone());
+    string safeAddress = db.escapeString(customer.getAddress());
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "INSERT INTO customers (name, email, phone, address) VALUES ('"
        << safeName << "', '" << safeEmail << "', '" << safePhone << "', '" << safeAddress << "');";
 
@@ -19,12 +21,12 @@ bool CustomerRepository::addCustomer(Customer& customer) {
 }
 
 bool CustomerRepository::updateCustomer(const Customer& customer) {
-    std::string safeName = db.escapeString(customer.getName());
-    std::string safeEmail = db.escapeString(customer.getEmail());
-    std::string safePhone = db.escapeString(customer.getPhone());
-    std::string safeAddress = db.escapeString(customer.getAddress());
+    string safeName = db.escapeString(customer.getName());
+    string safeEmail = db.escapeString(customer.getEmail());
+    string safePhone = db.escapeString(customer.getPhone());
+    string safeAddress = db.escapeString(customer.getAddress());
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "UPDATE customers SET "
        << "name = '" << safeName << "', "
        << "email = '" << safeEmail << "', "
@@ -37,28 +39,28 @@ bool CustomerRepository::updateCustomer(const Customer& customer) {
 }
 
 bool CustomerRepository::deleteCustomer(int customerId) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "DELETE FROM customers WHERE customer_id = " << customerId << ";";
     db.executeNonQuery(ss.str());
     return db.getAffectedRows() > 0;
 }
 
-std::optional<Customer> CustomerRepository::getById(int customerId) {
-    std::stringstream ss;
+optional<Customer> CustomerRepository::getById(int customerId) {
+    stringstream ss;
     ss << "SELECT customer_id, name, email, phone, address, created_at FROM customers WHERE customer_id = " 
        << customerId << ";";
 
     MYSQL_RES* res = db.executeQuery(ss.str());
-    if (!res) return std::nullopt;
+    if (!res) return nullopt;
 
     MYSQL_ROW row = mysql_fetch_row(res);
     if (!row) {
         mysql_free_result(res);
-        return std::nullopt;
+        return nullopt;
     }
 
     Customer customer(
-        std::stoi(row[0]),
+        stoi(row[0]),
         row[1] ? row[1] : "",
         row[2] ? row[2] : "",
         row[3] ? row[3] : "",
@@ -70,23 +72,23 @@ std::optional<Customer> CustomerRepository::getById(int customerId) {
     return customer;
 }
 
-std::optional<Customer> CustomerRepository::getByEmail(const std::string& email) {
-    std::string safeEmail = db.escapeString(email);
-    std::stringstream ss;
+optional<Customer> CustomerRepository::getByEmail(const string& email) {
+    string safeEmail = db.escapeString(email);
+    stringstream ss;
     ss << "SELECT customer_id, name, email, phone, address, created_at FROM customers WHERE email = '" 
        << safeEmail << "';";
 
     MYSQL_RES* res = db.executeQuery(ss.str());
-    if (!res) return std::nullopt;
+    if (!res) return nullopt;
 
     MYSQL_ROW row = mysql_fetch_row(res);
     if (!row) {
         mysql_free_result(res);
-        return std::nullopt;
+        return nullopt;
     }
 
     Customer customer(
-        std::stoi(row[0]),
+        stoi(row[0]),
         row[1] ? row[1] : "",
         row[2] ? row[2] : "",
         row[3] ? row[3] : "",
@@ -98,11 +100,11 @@ std::optional<Customer> CustomerRepository::getByEmail(const std::string& email)
     return customer;
 }
 
-std::vector<Customer> CustomerRepository::search(const std::string& searchTerm) {
-    std::vector<Customer> list;
-    std::string safeTerm = db.escapeString(searchTerm);
+vector<Customer> CustomerRepository::search(const string& searchTerm) {
+    vector<Customer> list;
+    string safeTerm = db.escapeString(searchTerm);
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "SELECT customer_id, name, email, phone, address, created_at FROM customers "
        << "WHERE customer_id = '" << safeTerm << "' OR name LIKE '%" << safeTerm << "%' OR email LIKE '%" << safeTerm << "%' "
        << "ORDER BY customer_id ASC;";
@@ -113,7 +115,7 @@ std::vector<Customer> CustomerRepository::search(const std::string& searchTerm) 
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
+            stoi(row[0]),
             row[1] ? row[1] : "",
             row[2] ? row[2] : "",
             row[3] ? row[3] : "",
@@ -126,15 +128,15 @@ std::vector<Customer> CustomerRepository::search(const std::string& searchTerm) 
     return list;
 }
 
-std::vector<Customer> CustomerRepository::getAll() {
-    std::vector<Customer> list;
+vector<Customer> CustomerRepository::getAll() {
+    vector<Customer> list;
     MYSQL_RES* res = db.executeQuery("SELECT customer_id, name, email, phone, address, created_at FROM customers ORDER BY customer_id ASC;");
     if (!res) return list;
 
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
+            stoi(row[0]),
             row[1] ? row[1] : "",
             row[2] ? row[2] : "",
             row[3] ? row[3] : "",
@@ -148,7 +150,7 @@ std::vector<Customer> CustomerRepository::getAll() {
 }
 
 int CustomerRepository::getOrderCount(int customerId) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "SELECT COUNT(*) FROM orders WHERE customer_id = " << customerId << ";";
     MYSQL_RES* res = db.executeQuery(ss.str());
     if (!res) return 0;
@@ -156,14 +158,14 @@ int CustomerRepository::getOrderCount(int customerId) {
     int count = 0;
     MYSQL_ROW row = mysql_fetch_row(res);
     if (row && row[0]) {
-        count = std::stoi(row[0]);
+        count = stoi(row[0]);
     }
     mysql_free_result(res);
     return count;
 }
 
 int CustomerRepository::getTicketCount(int customerId) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "SELECT COUNT(*) FROM support_tickets WHERE customer_id = " << customerId << ";";
     MYSQL_RES* res = db.executeQuery(ss.str());
     if (!res) return 0;
@@ -171,7 +173,7 @@ int CustomerRepository::getTicketCount(int customerId) {
     int count = 0;
     MYSQL_ROW row = mysql_fetch_row(res);
     if (row && row[0]) {
-        count = std::stoi(row[0]);
+        count = stoi(row[0]);
     }
     mysql_free_result(res);
     return count;

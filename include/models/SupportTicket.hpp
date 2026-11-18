@@ -5,6 +5,8 @@
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
+
 enum class TicketPriority {
     CRITICAL = 1,
     HIGH = 2,
@@ -19,7 +21,7 @@ enum class TicketStatus {
     CLOSED
 };
 
-inline std::string priorityToString(TicketPriority priority) {
+inline string priorityToString(TicketPriority priority) {
     switch (priority) {
         case TicketPriority::CRITICAL: return "CRITICAL";
         case TicketPriority::HIGH:     return "HIGH";
@@ -29,7 +31,7 @@ inline std::string priorityToString(TicketPriority priority) {
     }
 }
 
-inline TicketPriority stringToPriority(const std::string& str) {
+inline TicketPriority stringToPriority(const string& str) {
     if (str == "CRITICAL") return TicketPriority::CRITICAL;
     if (str == "HIGH")     return TicketPriority::HIGH;
     if (str == "NORMAL")   return TicketPriority::NORMAL;
@@ -37,7 +39,7 @@ inline TicketPriority stringToPriority(const std::string& str) {
     return TicketPriority::NORMAL;
 }
 
-inline std::string statusToString(TicketStatus status) {
+inline string statusToString(TicketStatus status) {
     switch (status) {
         case TicketStatus::OPEN:        return "OPEN";
         case TicketStatus::IN_PROGRESS: return "IN_PROGRESS";
@@ -47,7 +49,7 @@ inline std::string statusToString(TicketStatus status) {
     }
 }
 
-inline TicketStatus stringToStatus(const std::string& str) {
+inline TicketStatus stringToStatus(const string& str) {
     if (str == "OPEN")        return TicketStatus::OPEN;
     if (str == "IN_PROGRESS") return TicketStatus::IN_PROGRESS;
     if (str == "RESOLVED")    return TicketStatus::RESOLVED;
@@ -57,21 +59,21 @@ inline TicketStatus stringToStatus(const std::string& str) {
 
 /**
  * @brief Represents a customer support issue.
- * Used inside std::queue (FIFO) and std::priority_queue.
+ * Used inside queue (FIFO) and priority_queue.
  */
 class SupportTicket {
 private:
     int id;
     int customerId;
-    std::string customerName; // Join cache
+    string customerName; // Join cache
     int assignedEmployeeId;   // 0 if unassigned
-    std::string employeeName; // Join cache
+    string employeeName; // Join cache
     TicketPriority priority;
     TicketStatus status;
-    std::string subject;
-    std::string description;
-    std::string createdAt;
-    std::string resolvedAt;
+    string subject;
+    string description;
+    string createdAt;
+    string resolvedAt;
 
 public:
     SupportTicket()
@@ -81,9 +83,9 @@ public:
 
     SupportTicket(int id, int customerId, int assignedEmployeeId,
                   TicketPriority priority, TicketStatus status,
-                  const std::string& subject, const std::string& description,
-                  const std::string& createdAt = "", const std::string& resolvedAt = "",
-                  const std::string& customerName = "", const std::string& employeeName = "")
+                  const string& subject, const string& description,
+                  const string& createdAt = "", const string& resolvedAt = "",
+                  const string& customerName = "", const string& employeeName = "")
         : id(id), customerId(customerId), customerName(customerName),
           assignedEmployeeId(assignedEmployeeId), employeeName(employeeName),
           priority(priority), status(status), subject(subject),
@@ -92,28 +94,28 @@ public:
     // Getters
     int getId() const { return id; }
     int getCustomerId() const { return customerId; }
-    std::string getCustomerName() const { return customerName; }
+    string getCustomerName() const { return customerName; }
     int getAssignedEmployeeId() const { return assignedEmployeeId; }
-    std::string getEmployeeName() const { return employeeName; }
+    string getEmployeeName() const { return employeeName; }
     TicketPriority getPriority() const { return priority; }
     TicketStatus getStatus() const { return status; }
-    std::string getSubject() const { return subject; }
-    std::string getDescription() const { return description; }
-    std::string getCreatedAt() const { return createdAt; }
-    std::string getResolvedAt() const { return resolvedAt; }
+    string getSubject() const { return subject; }
+    string getDescription() const { return description; }
+    string getCreatedAt() const { return createdAt; }
+    string getResolvedAt() const { return resolvedAt; }
 
     // Setters
     void setId(int newId) { id = newId; }
     void setCustomerId(int cId) { customerId = cId; }
-    void setCustomerName(const std::string& name) { customerName = name; }
+    void setCustomerName(const string& name) { customerName = name; }
     void setAssignedEmployeeId(int empId) { assignedEmployeeId = empId; }
-    void setEmployeeName(const std::string& name) { employeeName = name; }
+    void setEmployeeName(const string& name) { employeeName = name; }
     void setPriority(TicketPriority p) { priority = p; }
     void setStatus(TicketStatus s) { status = s; }
-    void setSubject(const std::string& sub) { subject = sub; }
-    void setDescription(const std::string& desc) { description = desc; }
-    void setCreatedAt(const std::string& time) { createdAt = time; }
-    void setResolvedAt(const std::string& time) { resolvedAt = time; }
+    void setSubject(const string& sub) { subject = sub; }
+    void setDescription(const string& desc) { description = desc; }
+    void setCreatedAt(const string& time) { createdAt = time; }
+    void setResolvedAt(const string& time) { resolvedAt = time; }
 
     bool isUrgent() const {
         return priority == TicketPriority::CRITICAL || priority == TicketPriority::HIGH;
@@ -124,9 +126,9 @@ public:
     }
 
     void displayDetails() const {
-        std::cout << "Ticket ID    : #" << id << "\n"
-                  << "Customer     : " << (customerName.empty() ? ("Customer #" + std::to_string(customerId)) : customerName) << "\n"
-                  << "Assigned To  : " << (assignedEmployeeId == 0 ? "Unassigned" : (employeeName.empty() ? ("Employee #" + std::to_string(assignedEmployeeId)) : employeeName)) << "\n"
+        cout << "Ticket ID    : #" << id << "\n"
+                  << "Customer     : " << (customerName.empty() ? ("Customer #" + to_string(customerId)) : customerName) << "\n"
+                  << "Assigned To  : " << (assignedEmployeeId == 0 ? "Unassigned" : (employeeName.empty() ? ("Employee #" + to_string(assignedEmployeeId)) : employeeName)) << "\n"
                   << "Priority     : " << priorityToString(priority) << "\n"
                   << "Status       : " << statusToString(status) << "\n"
                   << "Subject      : " << subject << "\n"
@@ -137,14 +139,14 @@ public:
 };
 
 /**
- * @brief Custom Comparator for std::priority_queue<SupportTicket>.
+ * @brief Custom Comparator for priority_queue<SupportTicket>.
  * 
  * Demonstrates DSA Knowledge:
  * 1. Urgency: Higher priority tickets (CRITICAL=1, HIGH=2) are processed before lower ones.
  * 2. FIFO Tie-breaker: If two tickets share identical priority, the older ticket (lower ID / timestamp)
  *    must be processed first.
  *
- * Note: In C++ std::priority_queue (max-heap), returning `true` means element `a` has lower priority
+ * Note: In C++ priority_queue (max-heap), returning `true` means element `a` has lower priority
  * than `b` (so `b` is placed higher).
  */
 struct TicketComparator {

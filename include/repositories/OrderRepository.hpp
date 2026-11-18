@@ -7,6 +7,8 @@
 #include "../models/Payment.hpp"
 #include "../database/DatabaseManager.hpp"
 
+using namespace std;
+
 class OrderRepository {
 private:
     DatabaseManager& db;
@@ -18,10 +20,10 @@ public:
     bool placeOrderTransaction(Order& order, Payment& payment);
     bool cancelOrderTransaction(int orderId);
 
-    std::optional<Order> getById(int orderId);
-    std::vector<Order> getOrdersByCustomer(int customerId);
-    std::vector<Order> getAll();
-    std::vector<Payment> getPaymentsForOrder(int orderId);
+    optional<Order> getById(int orderId);
+    vector<Order> getOrdersByCustomer(int customerId);
+    vector<Order> getAll();
+    vector<Payment> getPaymentsForOrder(int orderId);
 };
 
 #endif // ORDER_REPOSITORY_HPP

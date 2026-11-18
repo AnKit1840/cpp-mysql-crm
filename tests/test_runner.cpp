@@ -22,16 +22,18 @@
 #include "../include/services/OrderService.hpp"
 #include "../include/services/TicketManager.hpp"
 
+using namespace std;
+
 static int g_testsPassed = 0;
 static int g_testsFailed = 0;
 
 #define TEST_ASSERT(cond, msg) \
     do { \
         if (cond) { \
-            std::cout << "  [PASS] " << msg << "\n"; \
+            cout << "  [PASS] " << msg << "\n"; \
             g_testsPassed++; \
         } else { \
-            std::cerr << "  [FAIL] " << msg << " (Line " << __LINE__ << ")\n"; \
+            cerr << "  [FAIL] " << msg << " (Line " << __LINE__ << ")\n"; \
             g_testsFailed++; \
         } \
     } while(0)
@@ -40,11 +42,11 @@ static int g_testsFailed = 0;
 // Test Group 1: OOP Models & Polymorphism
 // ----------------------------------------------------------------------------
 void testOOPPolymorphism() {
-    std::cout << "\n>>> Running Test Group 1: OOP & Runtime Polymorphism <<<\n";
+    cout << "\n>>> Running Test Group 1: OOP & Runtime Polymorphism <<<\n";
 
     // Polymorphism via User pointer
-    std::unique_ptr<User> u1 = std::make_unique<Customer>(101, "Test Customer", "test.cust@example.com", "1234567890", "123 Main St");
-    std::unique_ptr<User> u2 = std::make_unique<Employee>(201, "Test Employee", "test.emp@crm.internal", "0987654321", "Lead Engineer", "2024-01-01");
+    unique_ptr<User> u1 = make_unique<Customer>(101, "Test Customer", "test.cust@example.com", "1234567890", "123 Main St");
+    unique_ptr<User> u2 = make_unique<Employee>(201, "Test Employee", "test.emp@crm.internal", "0987654321", "Lead Engineer", "2024-01-01");
 
     TEST_ASSERT(u1->getRole() == "Customer", "Polymorphic getRole() returns 'Customer'");
     TEST_ASSERT(u2->getRole() == "Lead Engineer", "Polymorphic getRole() returns 'Lead Engineer'");
@@ -60,10 +62,10 @@ void testOOPPolymorphism() {
 // Test Group 2: DSA Queues & Custom Priority Comparator
 // ----------------------------------------------------------------------------
 void testDataStructuresAndPriorityQueue() {
-    std::cout << "\n>>> Running Test Group 2: DSA Queues & Priority Ordering <<<\n";
+    cout << "\n>>> Running Test Group 2: DSA Queues & Priority Ordering <<<\n";
 
     // 1. Priority Queue Ordering (CRITICAL > HIGH) & FIFO Tie-breaker
-    std::priority_queue<SupportTicket, std::vector<SupportTicket>, TicketComparator> pq;
+    priority_queue<SupportTicket, vector<SupportTicket>, TicketComparator> pq;
 
     SupportTicket t1(1, 1, 0, TicketPriority::HIGH, TicketStatus::OPEN, "VPN Issue", "VPN down");
     SupportTicket t2(2, 1, 0, TicketPriority::CRITICAL, TicketStatus::OPEN, "Server Outage", "Production down");
@@ -87,7 +89,7 @@ void testDataStructuresAndPriorityQueue() {
     TEST_ASSERT(third.getId() == 3, "Remaining HIGH ticket (ID 3) processed last");
 
     // 2. Standard FIFO Queue for NORMAL and LOW
-    std::queue<SupportTicket> nq;
+    queue<SupportTicket> nq;
     SupportTicket tn1(10, 1, 0, TicketPriority::NORMAL, TicketStatus::OPEN, "Query A", "Normal A");
     SupportTicket tn2(11, 1, 0, TicketPriority::LOW, TicketStatus::OPEN, "Query B", "Low B");
 
@@ -98,8 +100,8 @@ void testDataStructuresAndPriorityQueue() {
     SupportTicket f2 = nq.front(); nq.pop();
     TEST_ASSERT(f1.getId() == 10 && f2.getId() == 11, "Standard queue enforces strict First-In, First-Out (FIFO) ordering");
 
-    // 3. Duplicate Prevention with std::unordered_set
-    std::unordered_set<int> inMemSet;
+    // 3. Duplicate Prevention with unordered_set
+    unordered_set<int> inMemSet;
     inMemSet.insert(10);
     TEST_ASSERT(inMemSet.find(10) != inMemSet.end(), "Duplicate set tracks existing ticket ID");
     bool duplicateDetected = (inMemSet.find(10) != inMemSet.end());
@@ -110,15 +112,15 @@ void testDataStructuresAndPriorityQueue() {
 // Test Group 3: Live Database, Transactions & Modules
 // ----------------------------------------------------------------------------
 void testDatabaseIntegration() {
-    std::cout << "\n>>> Running Test Group 3: Database Services & Transactions <<<\n";
+    cout << "\n>>> Running Test Group 3: Database Services & Transactions <<<\n";
 
     DatabaseConfig config = ConfigLoader::load("config/db_config.ini");
     DatabaseManager& db = DatabaseManager::getInstance();
 
     try {
         db.connect(config);
-    } catch (const std::exception& e) {
-        std::cout << "  [SKIPPED] Live MySQL database is currently unreachable (" << e.what() 
+    } catch (const exception& e) {
+        cout << "  [SKIPPED] Live MySQL database is currently unreachable (" << e.what() 
                   << "). Verify 'config/db_config.ini' to run live DB tests.\n";
         return;
     }
@@ -132,7 +134,7 @@ void testDatabaseIntegration() {
     AnalyticsRepository analyticsRepo;
 
     // 1. Customer Creation & Duplicate Email Prevention
-    std::string uniqueEmail = "unit_test_" + std::to_string(rand() % 100000) + "@crmtest.com";
+    string uniqueEmail = "unit_test_" + to_string(rand() % 100000) + "@crmtest.com";
     try {
         Customer c = customerService.registerCustomer("Unit Test Customer", uniqueEmail, "+1-555-9999", "99 Test Way");
         TEST_ASSERT(c.getId() > 0, "Customer registered successfully with positive database ID");
@@ -141,12 +143,12 @@ void testDatabaseIntegration() {
         bool caughtDuplicate = false;
         try {
             customerService.registerCustomer("Duplicate Person", uniqueEmail, "+1-555-0000", "Nowhere");
-        } catch (const std::invalid_argument&) {
+        } catch (const invalid_argument&) {
             caughtDuplicate = true;
         }
         TEST_ASSERT(caughtDuplicate, "Duplicate email registration prevented by CustomerService");
-    } catch (const std::exception& e) {
-        std::cerr << "Customer test exception: " << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << "Customer test exception: " << e.what() << "\n";
     }
 
     // 2. Product Management & Stock Validation
@@ -161,27 +163,27 @@ void testDatabaseIntegration() {
         bool caughtNegativePrice = false;
         try {
             productService.updatePrice(p.getId(), -50.0);
-        } catch (const std::invalid_argument&) {
+        } catch (const invalid_argument&) {
             caughtNegativePrice = true;
         }
         TEST_ASSERT(caughtNegativePrice, "Negative product price rejected by ProductService validation");
-    } catch (const std::exception& e) {
-        std::cerr << "Product test exception: " << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << "Product test exception: " << e.what() << "\n";
     }
 
     // 3. Order Placement & ACID Transaction Rollback
     try {
         // Customer 1 placed order for product 1
-        std::vector<std::pair<int, int>> validItems = {{1, 1}};
+        vector<pair<int, int>> validItems = {{1, 1}};
         Order ord = orderService.placeOrder(1, validItems, "CREDIT_CARD");
         TEST_ASSERT(ord.getId() > 0, "Order placed successfully via multi-table database transaction");
 
         // Insufficient inventory test -> Rollback verification
         bool caughtInsufficientStock = false;
         try {
-            std::vector<std::pair<int, int>> excessiveItems = {{1, 999999}};
+            vector<pair<int, int>> excessiveItems = {{1, 999999}};
             orderService.placeOrder(1, excessiveItems, "CREDIT_CARD");
-        } catch (const std::exception&) {
+        } catch (const exception&) {
             caughtInsufficientStock = true;
         }
         TEST_ASSERT(caughtInsufficientStock, "Order placement with insufficient stock failed and triggered rollback");
@@ -189,8 +191,8 @@ void testDatabaseIntegration() {
         // Cancel order & verify inventory restoration
         bool cancelled = orderService.cancelOrder(ord.getId());
         TEST_ASSERT(cancelled, "Order cancelled and inventory restored atomically via transaction");
-    } catch (const std::exception& e) {
-        std::cerr << "Order test exception: " << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << "Order test exception: " << e.what() << "\n";
     }
 
     // 4. Ticket Manager Queue Processing
@@ -201,8 +203,8 @@ void testDatabaseIntegration() {
 
         auto processed = ticketManager.processNextTicket(1, "Investigating automated issue");
         TEST_ASSERT(processed.has_value(), "Next ticket successfully popped from priority queue and assigned");
-    } catch (const std::exception& e) {
-        std::cerr << "Ticket test exception: " << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << "Ticket test exception: " << e.what() << "\n";
     }
 
     // 5. Analytics Aggregation Verification
@@ -210,13 +212,13 @@ void testDatabaseIntegration() {
         auto revSummary = analyticsRepo.getOverallRevenueMetrics();
         TEST_ASSERT(revSummary.totalOrders >= 0, "Analytics total orders aggregation computed successfully");
         TEST_ASSERT(revSummary.totalRevenue >= 0.0, "Analytics gross revenue aggregation computed successfully");
-    } catch (const std::exception& e) {
-        std::cerr << "Analytics test exception: " << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << "Analytics test exception: " << e.what() << "\n";
     }
 }
 
 int main() {
-    std::cout << "========================================================\n"
+    cout << "========================================================\n"
               << "          CRM SYSTEM AUTOMATED TEST SUITE               \n"
               << "========================================================\n";
 
@@ -224,7 +226,7 @@ int main() {
     testDataStructuresAndPriorityQueue();
     testDatabaseIntegration();
 
-    std::cout << "\n========================================================\n"
+    cout << "\n========================================================\n"
               << "TEST SUMMARY: " << g_testsPassed << " PASSED, " << g_testsFailed << " FAILED.\n"
               << "========================================================\n";
 

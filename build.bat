@@ -49,7 +49,7 @@ set "TEST_SOURCES=tests\test_runner.cpp src\database\DatabaseManager.cpp src\rep
 
 REM 5. Compile Main Application
 echo [1/3] Compiling CRM System executable: bin\crm_system.exe...
-g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -Iinclude -I"%MYSQL_INC%" %SOURCES% -L"%MYSQL_LIB%" -lmysql -o "bin\crm_system.exe"
+g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0601 -Iinclude -I"%MYSQL_INC%" %SOURCES% -L"%MYSQL_LIB%" -lmysql -o "bin\crm_system.exe"
 if errorlevel 1 (
     echo [ERROR] Compilation of crm_system.exe failed.
     exit /b 1
@@ -57,7 +57,7 @@ if errorlevel 1 (
 
 REM 6. Compile Automated Test Runner
 echo [2/3] Compiling Test Runner executable: bin\crm_tests.exe...
-g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -Iinclude -I"%MYSQL_INC%" %TEST_SOURCES% -L"%MYSQL_LIB%" -lmysql -o "bin\crm_tests.exe"
+g++ -std=c++17 -O2 -static-libgcc -static-libstdc++ -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0601 -Iinclude -I"%MYSQL_INC%" %TEST_SOURCES% -L"%MYSQL_LIB%" -lmysql -o "bin\crm_tests.exe"
 if errorlevel 1 (
     echo [ERROR] Compilation of crm_tests.exe failed.
     exit /b 1

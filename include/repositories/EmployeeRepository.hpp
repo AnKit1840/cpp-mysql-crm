@@ -6,6 +6,8 @@
 #include "../models/Employee.hpp"
 #include "../database/DatabaseManager.hpp"
 
+using namespace std;
+
 class EmployeeRepository {
 private:
     DatabaseManager& db;
@@ -17,10 +19,10 @@ public:
     bool updateEmployee(const Employee& employee);
     bool deleteEmployee(int employeeId);
 
-    std::optional<Employee> getById(int employeeId);
-    std::optional<Employee> getByEmail(const std::string& email);
-    std::vector<Employee> search(const std::string& searchTerm);
-    std::vector<Employee> getAll();
+    optional<Employee> getById(int employeeId);
+    optional<Employee> getByEmail(const string& email);
+    vector<Employee> search(const string& searchTerm);
+    vector<Employee> getAll();
 
     int getAssignedTicketCount(int employeeId);
     int getActiveTicketCount(int employeeId);

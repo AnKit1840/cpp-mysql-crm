@@ -10,6 +10,14 @@
 #include <mysql.h>
 #include "ConfigLoader.hpp"
 
+// NOTE: 'using namespace std' is intentionally omitted in this header.
+// Including <mysql.h> on Windows transitively includes <windows.h> -> <rpcndr.h>
+// which typedefs 'byte' as 'unsigned char'. C++17 std::byte conflicts with this.
+// Using 'using namespace std' here would cause an "ambiguous reference to byte"
+// compilation error. All .cpp files that include this header may still use
+// 'using namespace std' because they include this header first (before <iostream>
+// re-opens the std namespace issue in this header's scope).
+
 /**
  * @brief Thread-safe Singleton Database Manager wrapping MySQL C API with modern C++ RAII.
  * Demonstrates:

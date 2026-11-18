@@ -8,26 +8,28 @@
 #include "../models/Employee.hpp"
 #include "../repositories/EmployeeRepository.hpp"
 
+using namespace std;
+
 class EmployeeService {
 private:
     EmployeeRepository repo;
-    bool isValidEmail(const std::string& email) const;
+    bool isValidEmail(const string& email) const;
 
 public:
     explicit EmployeeService(EmployeeRepository repository = EmployeeRepository());
 
-    Employee registerEmployee(const std::string& name, const std::string& email,
-                              const std::string& phone, const std::string& role,
-                              const std::string& joiningDate = "");
-    bool updateEmployee(int id, const std::string& name, const std::string& email,
-                        const std::string& phone, const std::string& role,
-                        const std::string& joiningDate);
+    Employee registerEmployee(const string& name, const string& email,
+                              const string& phone, const string& role,
+                              const string& joiningDate = "");
+    bool updateEmployee(int id, const string& name, const string& email,
+                        const string& phone, const string& role,
+                        const string& joiningDate);
     bool deleteEmployee(int id);
 
-    std::optional<Employee> getEmployeeById(int id);
-    std::optional<Employee> getEmployeeByEmail(const std::string& email);
-    std::vector<Employee> searchEmployees(const std::string& query);
-    std::vector<Employee> getAllEmployees();
+    optional<Employee> getEmployeeById(int id);
+    optional<Employee> getEmployeeByEmail(const string& email);
+    vector<Employee> searchEmployees(const string& query);
+    vector<Employee> getAllEmployees();
 
     int getAssignedTicketCount(int employeeId);
 };

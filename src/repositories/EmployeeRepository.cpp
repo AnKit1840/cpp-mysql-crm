@@ -1,16 +1,18 @@
 #include "../../include/repositories/EmployeeRepository.hpp"
 #include <sstream>
 
+using namespace std;
+
 EmployeeRepository::EmployeeRepository(DatabaseManager& dbManager) : db(dbManager) {}
 
 bool EmployeeRepository::addEmployee(Employee& employee) {
-    std::string safeName = db.escapeString(employee.getName());
-    std::string safeEmail = db.escapeString(employee.getEmail());
-    std::string safePhone = db.escapeString(employee.getPhone());
-    std::string safeRole = db.escapeString(employee.getEmployeeRole());
-    std::string safeJoining = db.escapeString(employee.getJoiningDate().empty() ? "CURDATE()" : ("'" + employee.getJoiningDate() + "'"));
+    string safeName = db.escapeString(employee.getName());
+    string safeEmail = db.escapeString(employee.getEmail());
+    string safePhone = db.escapeString(employee.getPhone());
+    string safeRole = db.escapeString(employee.getEmployeeRole());
+    string safeJoining = db.escapeString(employee.getJoiningDate().empty() ? "CURDATE()" : ("'" + employee.getJoiningDate() + "'"));
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "INSERT INTO employees (name, email, phone, role, joining_date) VALUES ('"
        << safeName << "', '" << safeEmail << "', '" << safePhone << "', '" << safeRole << "', " << safeJoining << ");";
 
@@ -20,13 +22,13 @@ bool EmployeeRepository::addEmployee(Employee& employee) {
 }
 
 bool EmployeeRepository::updateEmployee(const Employee& employee) {
-    std::string safeName = db.escapeString(employee.getName());
-    std::string safeEmail = db.escapeString(employee.getEmail());
-    std::string safePhone = db.escapeString(employee.getPhone());
-    std::string safeRole = db.escapeString(employee.getEmployeeRole());
-    std::string safeJoining = db.escapeString(employee.getJoiningDate());
+    string safeName = db.escapeString(employee.getName());
+    string safeEmail = db.escapeString(employee.getEmail());
+    string safePhone = db.escapeString(employee.getPhone());
+    string safeRole = db.escapeString(employee.getEmployeeRole());
+    string safeJoining = db.escapeString(employee.getJoiningDate());
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "UPDATE employees SET "
        << "name = '" << safeName << "', "
        << "email = '" << safeEmail << "', "
@@ -40,28 +42,28 @@ bool EmployeeRepository::updateEmployee(const Employee& employee) {
 }
 
 bool EmployeeRepository::deleteEmployee(int employeeId) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "DELETE FROM employees WHERE employee_id = " << employeeId << ";";
     db.executeNonQuery(ss.str());
     return db.getAffectedRows() > 0;
 }
 
-std::optional<Employee> EmployeeRepository::getById(int employeeId) {
-    std::stringstream ss;
+optional<Employee> EmployeeRepository::getById(int employeeId) {
+    stringstream ss;
     ss << "SELECT employee_id, name, email, phone, role, joining_date FROM employees WHERE employee_id = " 
        << employeeId << ";";
 
     MYSQL_RES* res = db.executeQuery(ss.str());
-    if (!res) return std::nullopt;
+    if (!res) return nullopt;
 
     MYSQL_ROW row = mysql_fetch_row(res);
     if (!row) {
         mysql_free_result(res);
-        return std::nullopt;
+        return nullopt;
     }
 
     Employee emp(
-        std::stoi(row[0]),
+        stoi(row[0]),
         row[1] ? row[1] : "",
         row[2] ? row[2] : "",
         row[3] ? row[3] : "",
@@ -73,23 +75,23 @@ std::optional<Employee> EmployeeRepository::getById(int employeeId) {
     return emp;
 }
 
-std::optional<Employee> EmployeeRepository::getByEmail(const std::string& email) {
-    std::string safeEmail = db.escapeString(email);
-    std::stringstream ss;
+optional<Employee> EmployeeRepository::getByEmail(const string& email) {
+    string safeEmail = db.escapeString(email);
+    stringstream ss;
     ss << "SELECT employee_id, name, email, phone, role, joining_date FROM employees WHERE email = '" 
        << safeEmail << "';";
 
     MYSQL_RES* res = db.executeQuery(ss.str());
-    if (!res) return std::nullopt;
+    if (!res) return nullopt;
 
     MYSQL_ROW row = mysql_fetch_row(res);
     if (!row) {
         mysql_free_result(res);
-        return std::nullopt;
+        return nullopt;
     }
 
     Employee emp(
-        std::stoi(row[0]),
+        stoi(row[0]),
         row[1] ? row[1] : "",
         row[2] ? row[2] : "",
         row[3] ? row[3] : "",
@@ -101,11 +103,11 @@ std::optional<Employee> EmployeeRepository::getByEmail(const std::string& email)
     return emp;
 }
 
-std::vector<Employee> EmployeeRepository::search(const std::string& searchTerm) {
-    std::vector<Employee> list;
-    std::string safeTerm = db.escapeString(searchTerm);
+vector<Employee> EmployeeRepository::search(const string& searchTerm) {
+    vector<Employee> list;
+    string safeTerm = db.escapeString(searchTerm);
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "SELECT employee_id, name, email, phone, role, joining_date FROM employees "
        << "WHERE employee_id = '" << safeTerm << "' OR name LIKE '%" << safeTerm << "%' "
        << "OR email LIKE '%" << safeTerm << "%' OR role LIKE '%" << safeTerm << "%' "
@@ -117,7 +119,7 @@ std::vector<Employee> EmployeeRepository::search(const std::string& searchTerm) 
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
+            stoi(row[0]),
             row[1] ? row[1] : "",
             row[2] ? row[2] : "",
             row[3] ? row[3] : "",
@@ -130,15 +132,15 @@ std::vector<Employee> EmployeeRepository::search(const std::string& searchTerm) 
     return list;
 }
 
-std::vector<Employee> EmployeeRepository::getAll() {
-    std::vector<Employee> list;
+vector<Employee> EmployeeRepository::getAll() {
+    vector<Employee> list;
     MYSQL_RES* res = db.executeQuery("SELECT employee_id, name, email, phone, role, joining_date FROM employees ORDER BY employee_id ASC;");
     if (!res) return list;
 
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
+            stoi(row[0]),
             row[1] ? row[1] : "",
             row[2] ? row[2] : "",
             row[3] ? row[3] : "",
@@ -152,7 +154,7 @@ std::vector<Employee> EmployeeRepository::getAll() {
 }
 
 int EmployeeRepository::getAssignedTicketCount(int employeeId) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "SELECT COUNT(*) FROM support_tickets WHERE assigned_employee_id = " << employeeId << ";";
     MYSQL_RES* res = db.executeQuery(ss.str());
     if (!res) return 0;
@@ -160,14 +162,14 @@ int EmployeeRepository::getAssignedTicketCount(int employeeId) {
     int count = 0;
     MYSQL_ROW row = mysql_fetch_row(res);
     if (row && row[0]) {
-        count = std::stoi(row[0]);
+        count = stoi(row[0]);
     }
     mysql_free_result(res);
     return count;
 }
 
 int EmployeeRepository::getActiveTicketCount(int employeeId) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "SELECT COUNT(*) FROM support_tickets WHERE assigned_employee_id = " << employeeId 
        << " AND status IN ('OPEN', 'IN_PROGRESS');";
     MYSQL_RES* res = db.executeQuery(ss.str());
@@ -176,7 +178,7 @@ int EmployeeRepository::getActiveTicketCount(int employeeId) {
     int count = 0;
     MYSQL_ROW row = mysql_fetch_row(res);
     if (row && row[0]) {
-        count = std::stoi(row[0]);
+        count = stoi(row[0]);
     }
     mysql_free_result(res);
     return count;

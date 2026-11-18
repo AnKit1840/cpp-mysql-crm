@@ -1,13 +1,15 @@
 #include "../../include/repositories/ProductRepository.hpp"
 #include <sstream>
 
+using namespace std;
+
 ProductRepository::ProductRepository(DatabaseManager& dbManager) : db(dbManager) {}
 
 bool ProductRepository::addProduct(Product& product) {
-    std::string safeName = db.escapeString(product.getName());
-    std::string safeDesc = db.escapeString(product.getDescription());
+    string safeName = db.escapeString(product.getName());
+    string safeDesc = db.escapeString(product.getDescription());
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "INSERT INTO products (category_id, name, price, stock_quantity, description) VALUES ("
        << product.getCategoryId() << ", '" << safeName << "', "
        << product.getPrice() << ", " << product.getStockQuantity() << ", '" << safeDesc << "');";
@@ -18,10 +20,10 @@ bool ProductRepository::addProduct(Product& product) {
 }
 
 bool ProductRepository::updateProduct(const Product& product) {
-    std::string safeName = db.escapeString(product.getName());
-    std::string safeDesc = db.escapeString(product.getDescription());
+    string safeName = db.escapeString(product.getName());
+    string safeDesc = db.escapeString(product.getDescription());
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "UPDATE products SET "
        << "category_id = " << product.getCategoryId() << ", "
        << "name = '" << safeName << "', "
@@ -35,34 +37,34 @@ bool ProductRepository::updateProduct(const Product& product) {
 }
 
 bool ProductRepository::deleteProduct(int productId) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "DELETE FROM products WHERE product_id = " << productId << ";";
     db.executeNonQuery(ss.str());
     return db.getAffectedRows() > 0;
 }
 
-std::optional<Product> ProductRepository::getById(int productId) {
-    std::stringstream ss;
+optional<Product> ProductRepository::getById(int productId) {
+    stringstream ss;
     ss << "SELECT p.product_id, p.category_id, p.name, p.price, p.stock_quantity, p.description, c.name "
        << "FROM products p "
        << "LEFT JOIN categories c ON p.category_id = c.category_id "
        << "WHERE p.product_id = " << productId << ";";
 
     MYSQL_RES* res = db.executeQuery(ss.str());
-    if (!res) return std::nullopt;
+    if (!res) return nullopt;
 
     MYSQL_ROW row = mysql_fetch_row(res);
     if (!row) {
         mysql_free_result(res);
-        return std::nullopt;
+        return nullopt;
     }
 
     Product prod(
-        std::stoi(row[0]),
-        std::stoi(row[1]),
+        stoi(row[0]),
+        stoi(row[1]),
         row[2] ? row[2] : "",
-        std::stod(row[3]),
-        std::stoi(row[4]),
+        stod(row[3]),
+        stoi(row[4]),
         row[5] ? row[5] : "",
         row[6] ? row[6] : ""
     );
@@ -71,11 +73,11 @@ std::optional<Product> ProductRepository::getById(int productId) {
     return prod;
 }
 
-std::vector<Product> ProductRepository::search(const std::string& searchTerm) {
-    std::vector<Product> list;
-    std::string safeTerm = db.escapeString(searchTerm);
+vector<Product> ProductRepository::search(const string& searchTerm) {
+    vector<Product> list;
+    string safeTerm = db.escapeString(searchTerm);
 
-    std::stringstream ss;
+    stringstream ss;
     ss << "SELECT p.product_id, p.category_id, p.name, p.price, p.stock_quantity, p.description, c.name "
        << "FROM products p "
        << "LEFT JOIN categories c ON p.category_id = c.category_id "
@@ -88,11 +90,11 @@ std::vector<Product> ProductRepository::search(const std::string& searchTerm) {
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
-            std::stoi(row[1]),
+            stoi(row[0]),
+            stoi(row[1]),
             row[2] ? row[2] : "",
-            std::stod(row[3]),
-            std::stoi(row[4]),
+            stod(row[3]),
+            stoi(row[4]),
             row[5] ? row[5] : "",
             row[6] ? row[6] : ""
         );
@@ -102,9 +104,9 @@ std::vector<Product> ProductRepository::search(const std::string& searchTerm) {
     return list;
 }
 
-std::vector<Product> ProductRepository::getAll() {
-    std::vector<Product> list;
-    std::string sql = "SELECT p.product_id, p.category_id, p.name, p.price, p.stock_quantity, p.description, c.name "
+vector<Product> ProductRepository::getAll() {
+    vector<Product> list;
+    string sql = "SELECT p.product_id, p.category_id, p.name, p.price, p.stock_quantity, p.description, c.name "
                       "FROM products p "
                       "LEFT JOIN categories c ON p.category_id = c.category_id "
                       "ORDER BY p.product_id ASC;";
@@ -115,11 +117,11 @@ std::vector<Product> ProductRepository::getAll() {
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
-            std::stoi(row[1]),
+            stoi(row[0]),
+            stoi(row[1]),
             row[2] ? row[2] : "",
-            std::stod(row[3]),
-            std::stoi(row[4]),
+            stod(row[3]),
+            stoi(row[4]),
             row[5] ? row[5] : "",
             row[6] ? row[6] : ""
         );
@@ -129,9 +131,9 @@ std::vector<Product> ProductRepository::getAll() {
     return list;
 }
 
-std::vector<Product> ProductRepository::getLowStock(int threshold) {
-    std::vector<Product> list;
-    std::stringstream ss;
+vector<Product> ProductRepository::getLowStock(int threshold) {
+    vector<Product> list;
+    stringstream ss;
     ss << "SELECT p.product_id, p.category_id, p.name, p.price, p.stock_quantity, p.description, c.name "
        << "FROM products p "
        << "LEFT JOIN categories c ON p.category_id = c.category_id "
@@ -144,11 +146,11 @@ std::vector<Product> ProductRepository::getLowStock(int threshold) {
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)) != nullptr) {
         list.emplace_back(
-            std::stoi(row[0]),
-            std::stoi(row[1]),
+            stoi(row[0]),
+            stoi(row[1]),
             row[2] ? row[2] : "",
-            std::stod(row[3]),
-            std::stoi(row[4]),
+            stod(row[3]),
+            stoi(row[4]),
             row[5] ? row[5] : "",
             row[6] ? row[6] : ""
         );
@@ -159,21 +161,21 @@ std::vector<Product> ProductRepository::getLowStock(int threshold) {
 }
 
 bool ProductRepository::updatePrice(int productId, double newPrice) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "UPDATE products SET price = " << newPrice << " WHERE product_id = " << productId << ";";
     db.executeNonQuery(ss.str());
     return db.getAffectedRows() > 0;
 }
 
 bool ProductRepository::updateStock(int productId, int newStock) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "UPDATE products SET stock_quantity = " << newStock << " WHERE product_id = " << productId << ";";
     db.executeNonQuery(ss.str());
     return db.getAffectedRows() > 0;
 }
 
 bool ProductRepository::deductStock(int productId, int quantity) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "UPDATE products SET stock_quantity = stock_quantity - " << quantity 
        << " WHERE product_id = " << productId << " AND stock_quantity >= " << quantity << ";";
     db.executeNonQuery(ss.str());
@@ -181,7 +183,7 @@ bool ProductRepository::deductStock(int productId, int quantity) {
 }
 
 bool ProductRepository::restoreStock(int productId, int quantity) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "UPDATE products SET stock_quantity = stock_quantity + " << quantity 
        << " WHERE product_id = " << productId << ";";
     db.executeNonQuery(ss.str());
@@ -189,7 +191,7 @@ bool ProductRepository::restoreStock(int productId, int quantity) {
 }
 
 bool ProductRepository::isReferencedInOrders(int productId) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "SELECT COUNT(*) FROM order_items WHERE product_id = " << productId << ";";
     MYSQL_RES* res = db.executeQuery(ss.str());
     if (!res) return false;
@@ -197,7 +199,7 @@ bool ProductRepository::isReferencedInOrders(int productId) {
     bool referenced = false;
     MYSQL_ROW row = mysql_fetch_row(res);
     if (row && row[0]) {
-        referenced = (std::stoi(row[0]) > 0);
+        referenced = (stoi(row[0]) > 0);
     }
     mysql_free_result(res);
     return referenced;
