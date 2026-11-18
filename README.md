@@ -67,7 +67,7 @@ This project implements a complete, decoupled, three-layer enterprise CRM engine
 - **Language**: C++17 (`std::unique_ptr`, `std::optional`, `<queue>`, `<unordered_set>`)
 - **Database**: MySQL Server 8.0+ (InnoDB Engine with ACID compliance)
 - **Database Connector**: Direct MySQL C Client API (`mysql.h`, `libmysql.lib`, `libmysql.dll`) wrapped in a custom C++ RAII manager
-- **Build System**: CMake 3.16+ with Ninja / MinGW-w64 / MSVC toolchains
+- **Compiler & Build**: Standard `g++` (C++17) with automated Windows `build.bat` script (No CMake required)
 - **Version Control**: Git & GitHub
 
 ---
@@ -219,9 +219,12 @@ erDiagram
 
 ```
 CRM-System/
-├── CMakeLists.txt              # CMake build orchestration
+├── build.bat                   # Simple Windows batch script compiling with g++
 ├── .gitignore                  # Git exclusion rules
 ├── README.md                   # Comprehensive documentation & portfolio guide
+├── bin/                        # Generated binaries & copied MySQL runtime DLLs
+│   ├── crm_system.exe
+│   └── crm_tests.exe
 ├── config/
 │   ├── db_config.example.ini   # Template configuration file
 │   └── db_config.ini           # Local database credentials (git-ignored)
@@ -366,8 +369,7 @@ The `sql/queries.sql` file includes 16 production-grade SQL queries. Highlights 
 ## 10. Build & Execution Guide
 
 ### Prerequisites
-- Modern C++17 Compiler (MinGW-w64 GCC 11+ or MSVC 2019+)
-- CMake 3.16+
+- Modern C++17 Compiler (`g++` / MinGW-w64 64-bit)
 - MySQL Server 8.0+
 
 ### Step 1: Initialize Database & Sample Data
@@ -392,19 +394,24 @@ user = root
 password = your_mysql_password
 ```
 
-### Step 3: Build using CMake
-```bash
-# Configure build files
-cmake -B build -G "Ninja"
-
-# Build all targets (crm_system and crm_tests)
-cmake --build build
+### Step 3: Build using `build.bat` (Windows)
+Double-click `build.bat` or run it from your terminal:
+```cmd
+build.bat
 ```
-*(The build system automatically copies `libmysql.dll`, `libssl-3-x64.dll`, and `libcrypto-3-x64.dll` to the binary directory).*
+The script will:
+1. Detect your `g++` C++17 compiler and MySQL directory.
+2. Compile both `bin\crm_system.exe` and `bin\crm_tests.exe`.
+3. Copy all required MySQL runtime DLLs (`libmysql.dll`, `libssl-3-x64.dll`, `libcrypto-3-x64.dll`) into `bin\`.
+
+*(Alternatively, to compile manually with standard `g++`:)*
+```cmd
+g++ -std=c++17 -O2 -Iinclude -I"C:\Program Files\MySQL\MySQL Server 8.0\include" src\main.cpp src\database\DatabaseManager.cpp src\repositories\CustomerRepository.cpp src\repositories\EmployeeRepository.cpp src\repositories\ProductRepository.cpp src\repositories\OrderRepository.cpp src\repositories\TicketRepository.cpp src\repositories\AnalyticsRepository.cpp src\services\CustomerService.cpp src\services\EmployeeService.cpp src\services\ProductService.cpp src\services\OrderService.cpp src\services\TicketManager.cpp src\services\AnalyticsService.cpp src\ui\MenuUI.cpp -L"C:\Program Files\MySQL\MySQL Server 8.0\lib" -lmysql -o bin\crm_system.exe
+```
 
 ### Step 4: Run Automated Tests
-```bash
-./build/crm_tests
+```cmd
+bin\crm_tests.exe
 ```
 **Expected Output:**
 ```
@@ -446,8 +453,8 @@ TEST SUMMARY: 21 PASSED, 0 FAILED.
 ```
 
 ### Step 5: Run the Main Application
-```bash
-./build/crm_system
+```cmd
+bin\crm_system.exe
 ```
 
 ---
