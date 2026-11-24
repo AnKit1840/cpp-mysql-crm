@@ -2,7 +2,13 @@
 
 A console-based **Customer Relationship Management (CRM) System** written in **C++17** with a **MySQL 8.0** backend. It uses a three-layer architecture (UI, Services, Repositories), ACID transactions for order processing, and dual queues (`std::priority_queue` + `std::queue`) for support ticket triage.
 
-**[Watch the 2-minute demo](demo/crm-demo.mp4)** — Follow a ₹2,950 order from checkout through cancellation, then see how the CRM assigns a critical support ticket and reports sales.
+---
+
+## Demo
+
+Follow a ₹2,950 order from checkout through cancellation, then see how the CRM assigns a critical support ticket and reports sales:
+
+https://github.com/AnKit1840/cpp-mysql-crm/raw/main/demo/crm-demo.mp4
 
 ---
 
