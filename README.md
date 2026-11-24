@@ -8,7 +8,10 @@ A console-based **Customer Relationship Management (CRM) System** written in **C
 
 Follow a ₹2,950 order from checkout through cancellation, then see how the CRM assigns a critical support ticket and reports sales:
 
-https://github.com/AnKit1840/cpp-mysql-crm/raw/main/demo/crm-demo.mp4
+
+https://github.com/user-attachments/assets/0cc8ae0a-7087-43bb-885d-df7bf26784b0
+
+
 
 ---
 
