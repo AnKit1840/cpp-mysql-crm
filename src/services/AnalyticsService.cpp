@@ -10,8 +10,8 @@ void AnalyticsService::displayOverallRevenue() {
               << "            EXECUTIVE REVENUE OVERVIEW            \n"
               << "==================================================\n"
               << "Total Completed Orders : " << summary.totalOrders << "\n"
-              << "Gross Recognized Sales : $" << fixed << setprecision(2) << summary.totalRevenue << "\n"
-              << "Average Order Value    : $" << summary.averageOrderValue << "\n"
+              << "Gross Recognized Sales : Rs. " << fixed << setprecision(2) << summary.totalRevenue << "\n"
+              << "Average Order Value    : Rs. " << summary.averageOrderValue << "\n"
               << "==================================================\n";
 }
 
@@ -32,8 +32,8 @@ void AnalyticsService::displayMonthlyRevenueTrend() {
         for (const auto& item : list) {
             cout << left << setw(12) << item.month
                       << setw(14) << item.ordersCount
-                      << "$" << fixed << setprecision(2) << setw(17) << item.revenue
-                      << "$" << setw(15) << item.avgOrderValue << "\n";
+                      << "Rs. " << fixed << setprecision(2) << setw(17) << item.revenue
+                      << "Rs. " << setw(15) << item.avgOrderValue << "\n";
         }
     }
     cout << "------------------------------------------------------------\n";
@@ -59,7 +59,7 @@ void AnalyticsService::displayTopCustomers(int limit) {
                       << setw(20) << item.name
                       << setw(30) << item.email
                       << setw(10) << item.completedOrders
-                      << "$" << fixed << setprecision(2) << item.totalSpent << "\n";
+                      << "Rs. " << fixed << setprecision(2) << item.totalSpent << "\n";
         }
     }
     cout << "--------------------------------------------------------------------------------\n";
@@ -85,7 +85,7 @@ void AnalyticsService::displayBestSellingProducts(int limit) {
                       << setw(34) << item.productName
                       << setw(22) << item.categoryName
                       << setw(12) << item.unitsSold
-                      << "$" << fixed << setprecision(2) << item.totalRevenue << "\n";
+                      << "Rs. " << fixed << setprecision(2) << item.totalRevenue << "\n";
         }
     }
     cout << "--------------------------------------------------------------------------------------\n";
@@ -161,7 +161,7 @@ void AnalyticsService::displayLowStockAlerts(int threshold) {
                       << setw(34) << item.name
                       << setw(22) << item.categoryName
                       << setw(12) << item.stockQuantity
-                      << "$" << fixed << setprecision(2) << item.price << "\n";
+                      << "Rs. " << fixed << setprecision(2) << item.price << "\n";
         }
     }
     cout << "--------------------------------------------------------------------------------\n";

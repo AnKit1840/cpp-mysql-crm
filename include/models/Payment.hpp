@@ -41,7 +41,7 @@ public:
         cout << "Payment #" << id << " | Order #" << orderId 
                   << " | Date: " << paymentDate
                   << " | Method: " << paymentMethod
-                  << " | Amount: $" << fixed << setprecision(2) << amount
+                  << " | Amount: Rs. " << fixed << setprecision(2) << amount
                   << " | Status: " << status << "\n";
     }
 };

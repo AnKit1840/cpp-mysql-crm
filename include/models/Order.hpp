@@ -70,15 +70,15 @@ public:
                   << "Customer ID : " << customerId << (customerName.empty() ? "" : " (" + customerName + ")") << "\n"
                   << "Date        : " << orderDate << "\n"
                   << "Status      : " << status << "\n"
-                  << "Total Amount: $" << fixed << setprecision(2) << totalAmount << "\n";
+                  << "Total Amount: Rs. " << fixed << setprecision(2) << totalAmount << "\n";
         if (!items.empty()) {
             cout << "Line Items  :\n";
             for (const auto& item : items) {
                 cout << "  - Product #" << item.getProductId() 
                           << (item.getProductName().empty() ? "" : " (" + item.getProductName() + ")")
                           << " | Qty: " << item.getQuantity()
-                          << " @ $" << fixed << setprecision(2) << item.getUnitPrice()
-                          << " = $" << item.getSubtotal() << "\n";
+                          << " @ Rs. " << fixed << setprecision(2) << item.getUnitPrice()
+                          << " = Rs. " << item.getSubtotal() << "\n";
             }
         }
     }

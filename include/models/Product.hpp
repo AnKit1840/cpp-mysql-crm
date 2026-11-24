@@ -71,7 +71,7 @@ public:
         cout << "Product ID   : " << id << "\n"
                   << "Name         : " << name << "\n"
                   << "Category     : " << (categoryName.empty() ? to_string(categoryId) : categoryName) << "\n"
-                  << "Price        : $" << fixed << setprecision(2) << price << "\n"
+                  << "Price        : Rs. " << fixed << setprecision(2) << price << "\n"
                   << "Available Qty: " << stockQuantity << (isLowStock() ? " [LOW STOCK ALERT]" : "") << "\n"
                   << "Description  : " << (description.empty() ? "None" : description) << "\n";
     }

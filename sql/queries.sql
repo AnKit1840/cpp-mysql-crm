@@ -164,7 +164,7 @@ ORDER BY FIELD(priority, 'CRITICAL', 'HIGH', 'NORMAL', 'LOW'), status;
 -- ----------------------------------------------------------------------------
 -- QUERY 10: Category-Level Revenue Contribution
 -- Concepts: INNER JOIN across 3 tables, aggregate SUM, percentage calculation.
--- Purpose: Identifies most lucrative business sectors (e.g. Hardware vs Software).
+-- Purpose: Identifies most lucrative business sectors (e.g. Handloom vs Kitchenware).
 -- ----------------------------------------------------------------------------
 SELECT 
     cat.category_id,

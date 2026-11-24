@@ -418,9 +418,9 @@ void MenuUI::handleProductMenu() {
 
 void MenuUI::addProductAction() {
     ConsoleUtils::printHeader("ADD NEW PRODUCT");
-    int catId = ConsoleUtils::readInt("Enter Category ID (1=Software, 2=Hardware, 3=Networking, 4=Office): ");
+    int catId = ConsoleUtils::readInt("Enter Category ID (1=Kitchenware, 2=Home Appliances, 3=Handloom, 4=Stationery): ");
     string name = ConsoleUtils::readLine("Enter product name: ");
-    double price = ConsoleUtils::readDouble("Enter unit price ($): ");
+    double price = ConsoleUtils::readDouble("Enter unit price (INR): ");
     int stock = ConsoleUtils::readInt("Enter initial stock quantity: ");
     string desc = ConsoleUtils::readLine("Enter product description: ");
 
@@ -448,7 +448,7 @@ void MenuUI::updateProductAction() {
     string name = ConsoleUtils::readLine("New Name [" + existing->getName() + "]: ");
     if (name.empty()) name = existing->getName();
 
-    double price = ConsoleUtils::readDouble("New Price [$" + to_string(existing->getPrice()) + "]: ", existing->getPrice());
+    double price = ConsoleUtils::readDouble("New Price [Rs. " + to_string(existing->getPrice()) + "]: ", existing->getPrice());
     int stock = ConsoleUtils::readInt("New Stock [" + to_string(existing->getStockQuantity()) + "]: ", existing->getStockQuantity());
     string desc = ConsoleUtils::readLine("New Description: ");
     if (desc.empty()) desc = existing->getDescription();
@@ -465,7 +465,7 @@ void MenuUI::updateProductAction() {
 void MenuUI::updatePriceAction() {
     ConsoleUtils::printHeader("UPDATE PRODUCT PRICE");
     int id = ConsoleUtils::readInt("Enter Product ID: ");
-    double price = ConsoleUtils::readDouble("Enter new price ($): ");
+    double price = ConsoleUtils::readDouble("Enter new price (INR): ");
 
     try {
         if (productService.updatePrice(id, price)) {
@@ -539,7 +539,7 @@ void MenuUI::displayProductsAction() {
         cout << left << setw(6) << p.getId()
                   << setw(34) << p.getName()
                   << setw(22) << p.getCategoryName()
-                  << "$" << fixed << setprecision(2) << setw(11) << p.getPrice()
+                  << "Rs. " << fixed << setprecision(2) << setw(11) << p.getPrice()
                   << p.getStockQuantity() << (p.isLowStock() ? " [LOW STOCK]" : "") << "\n";
     }
 }
@@ -686,7 +686,7 @@ void MenuUI::displayAllOrdersAction() {
                   << setw(20) << ord.getCustomerName()
                   << setw(22) << ord.getOrderDate()
                   << setw(14) << ord.getStatus()
-                  << "$" << fixed << setprecision(2) << ord.getTotalAmount() << "\n";
+                  << "Rs. " << fixed << setprecision(2) << ord.getTotalAmount() << "\n";
     }
 }
 

@@ -134,15 +134,15 @@ void testDatabaseIntegration() {
     AnalyticsRepository analyticsRepo;
 
     // 1. Customer Creation & Duplicate Email Prevention
-    string uniqueEmail = "unit_test_" + to_string(rand() % 100000) + "@crmtest.com";
+    string uniqueEmail = "unit_test_" + to_string(rand() % 100000) + "@example.com";
     try {
-        Customer c = customerService.registerCustomer("Unit Test Customer", uniqueEmail, "+1-555-9999", "99 Test Way");
+        Customer c = customerService.registerCustomer("Tanvi Desai", uniqueEmail, "+91 90000 10101", "22 Kothrud, Pune");
         TEST_ASSERT(c.getId() > 0, "Customer registered successfully with positive database ID");
 
         // Attempt duplicate insertion
         bool caughtDuplicate = false;
         try {
-            customerService.registerCustomer("Duplicate Person", uniqueEmail, "+1-555-0000", "Nowhere");
+            customerService.registerCustomer("Dev Desai", uniqueEmail, "+91 90000 10102", "8 Baner Road, Pune");
         } catch (const invalid_argument&) {
             caughtDuplicate = true;
         }
@@ -153,7 +153,7 @@ void testDatabaseIntegration() {
 
     // 2. Product Management & Stock Validation
     try {
-        Product p = productService.addProduct(1, "Test Analytics Software", 299.99, 15, "Automated testing item");
+        Product p = productService.addProduct(1, "Steel masala dabba", 299.99, 15, "Automated testing item");
         TEST_ASSERT(p.getId() > 0, "Product added successfully with positive database ID");
 
         bool priceUpdated = productService.updatePrice(p.getId(), 349.99);
